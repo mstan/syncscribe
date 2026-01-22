@@ -14,6 +14,20 @@ This automatically:
 3. ✅ Syncs to video with ffsubsync (fixes timing drift)
 4. ✅ Outputs: `Pokemon 07x45 Sky High Gym Battle!.srt`
 
+### Process One Episode - Multiple Languages
+
+```bash
+node app.js -i "src/Pokemon Season 7/Pokemon 07x45 Sky High Gym Battle!.mkv" --languages en,es --auto
+```
+
+This automatically:
+1. ✅ Extracts audio (skips if already exists)
+2. ✅ Transcribes with Whisper API (~$0.14)
+3. ✅ Translates to each language (~$0.001 per language)
+4. ✅ Outputs:
+   - `Pokemon 07x45 Sky High Gym Battle!.en.srt`
+   - `Pokemon 07x45 Sky High Gym Battle!.es.srt`
+
 ### Process All Episodes
 
 ```bash
@@ -40,6 +54,9 @@ Cost: ~$0.14 per episode
 ```bash
 # Specify language (default: en)
 node generate-and-sync.js -i "video.mkv" -l ja
+
+# Generate multiple languages from one transcription
+node app.js -i "video.mkv" --languages en,es,fr,ja --auto
 
 # Skip sync step (use raw Whisper timestamps)
 node generate-and-sync.js -i "video.mkv" --skip-sync
@@ -81,9 +98,18 @@ node shift-timing.js "subtitle.srt" -2 # Shift backward 2 seconds
 After processing, you'll have:
 ```
 src/Pokemon Season 7/
-  ├── Pokemon 07x42 A Shroomish Skirmish.mkv  (original video)
-  ├── Pokemon 07x42 A Shroomish Skirmish.mp3  (extracted audio)
-  └── Pokemon 07x42 A Shroomish Skirmish.srt  (synced subtitles)
+  ├── Pokemon 07x42 A Shroomish Skirmish.mkv     (original video)
+  ├── Pokemon 07x42 A Shroomish Skirmish.mp3     (extracted audio)
+  └── Pokemon 07x42 A Shroomish Skirmish.srt     (synced subtitles)
+```
+
+With multi-language processing:
+```
+src/Pokemon Season 7/
+  ├── Pokemon 07x42 A Shroomish Skirmish.mkv     (original video)
+  ├── Pokemon 07x42 A Shroomish Skirmish.mp3     (extracted audio)
+  ├── Pokemon 07x42 A Shroomish Skirmish.en.srt  (English subtitles)
+  └── Pokemon 07x42 A Shroomish Skirmish.es.srt  (Spanish subtitles)
 ```
 
 The MP3 files are kept so you don't need to re-extract if you want to re-transcribe.
@@ -92,6 +118,9 @@ The MP3 files are kept so you don't need to re-extract if you want to re-transcr
 
 - **Audio extraction**: FREE (local FFmpeg)
 - **Whisper transcription**: ~$0.14 per 23-min episode
+- **Translation (optional)**: ~$0.001 per language
 - **ffsubsync**: FREE (local processing)
 
-**Total per episode: ~$0.14**
+**Total per episode:**
+- Single language: ~$0.14
+- With translation (2-3 languages): ~$0.14 (translation is negligible cost)

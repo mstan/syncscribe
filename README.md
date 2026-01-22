@@ -12,10 +12,11 @@ Generate accurate subtitles for video files using state-of-the-art AI transcript
 - 🎯 **AI-Powered Transcription** - Uses OpenAI's Whisper API for highly accurate speech-to-text
 - 🔄 **Automatic Timing Sync** - Integrates ffsubsync to fix progressive timing drift
 - 🌍 **Multi-Language Support** - Supports 99+ languages with automatic detection
+- 🌐 **Multi-Language Translation** - Generate subtitles in multiple languages from single transcription
 - 🎚️ **Multi-Track Handling** - Detects and processes multiple audio tracks
 - 📝 **SRT Format Output** - Generates universally compatible subtitle files
 - ⚡ **Batch Processing** - Process entire seasons with a single command
-- 💰 **Cost-Effective** - ~$0.14 per 23-minute episode
+- 💰 **Cost-Effective** - ~$0.14 per 23-minute episode (transcription only)
 
 ## 📋 Table of Contents
 
@@ -86,6 +87,18 @@ This will:
 3. Sync timestamps with ffsubsync
 4. Generate `video.srt` subtitle file
 
+### Generate Subtitles in Multiple Languages
+
+```bash
+node app.js -i "path/to/video.mkv" --languages en,es,fr --auto
+```
+
+This will:
+1. Extract audio from the video
+2. Transcribe using Whisper API
+3. Translate to each target language
+4. Generate `video.en.srt`, `video.es.srt`, `video.fr.srt`
+
 ### Process Multiple Videos
 
 ```bash
@@ -113,6 +126,9 @@ done
 ```bash
 # Specify language (default: en)
 node generate-and-sync.js -i "video.mkv" -l ja
+
+# Generate subtitles in multiple languages
+node app.js -i "video.mkv" --languages en,es,ja --auto
 
 # Skip synchronization (use raw Whisper timestamps)
 node generate-and-sync.js -i "video.mkv" --skip-sync
@@ -175,7 +191,13 @@ Any format supported by FFmpeg:
          │
          ▼
 ┌─────────────────┐
-│  Subtitle File  │
+│  4. Translate   │  ← OpenAI API (optional)
+│  (Optional)     │    Generate multiple languages
+└────────┬────────┘
+         │
+         ▼
+┌─────────────────┐
+│  Subtitle Files │
 │  (.srt)         │
 └─────────────────┘
 ```
@@ -196,7 +218,7 @@ AI-generated timestamps from Whisper can drift over time, especially during:
 
 ## 💰 Cost
 
-### OpenAI Whisper API Pricing
+### OpenAI Whisper API Pricing (Transcription)
 
 - **Rate:** $0.006 per minute of audio
 - **Examples:**
@@ -205,11 +227,22 @@ AI-generated timestamps from Whisper can drift over time, especially during:
   - 90-minute movie: ~$0.54
   - Full 10-hour season: ~$3.60
 
+### OpenAI Translation Pricing (Optional)
+
+When using `--languages` to generate multiple translations:
+
+- **Model:** GPT-4o-mini
+- **Rate:** ~$0.0008 per language for a 23-minute episode (~500 subtitle segments)
+- **Examples:**
+  - Single episode (en + es): ~$0.14 (transcription) + $0.0008 (translation) ≈ **$0.14**
+  - Single episode (en + es + fr + de): ~$0.14 + $0.0024 ≈ **$0.14**
+  - Translation is extremely cheap compared to transcription!
+
 ### What's Free?
 
 - ✅ Audio extraction (FFmpeg - local)
 - ✅ Timing synchronization (ffsubsync - local)
-- ✅ All processing except Whisper API calls
+- ✅ All processing except OpenAI API calls
 
 ## 🛠️ Troubleshooting
 
@@ -275,6 +308,7 @@ syncscribe/
 │   ├── VideoProcessor.js       # FFmpeg operations
 │   ├── AudioAnalyzer.js        # Audio track detection
 │   ├── Transcriber.js          # OpenAI Whisper API client
+│   ├── Translator.js           # OpenAI translation service
 │   └── SubtitleWriter.js       # SRT file generation
 ├── tmp/                        # Temporary files (gitignored)
 ├── output/                     # Output directory (gitignored)
@@ -323,6 +357,27 @@ for file in src/Season1/*.mkv; do
   node generate-and-sync.js -i "$file"
 done
 ```
+
+### Multi-Language Subtitles
+
+**Problem:** Need subtitles in multiple languages for international distribution.
+
+**Solution:**
+```bash
+# Generate English, Spanish, and French subtitles from one transcription
+node app.js -i "video.mkv" --languages en,es,fr --auto
+```
+
+**Output:**
+- `video.en.srt` - English subtitles
+- `video.es.srt` - Spanish subtitles
+- `video.fr.srt` - French subtitles
+
+**Benefits:**
+- Single transcription, multiple languages
+- Same timing windows across all languages
+- Minimal additional cost (~$0.001 per language)
+- Perfect for content creators, educators, and international releases
 
 ## 🏗️ Architecture
 
