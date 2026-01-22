@@ -15,6 +15,7 @@ program
   .version('1.0.0')
   .requiredOption('-i, --input <path>', 'Path to input video file')
   .option('-l, --language <code>', 'Force specific language (e.g., en, ja, es). If not specified, will auto-detect or prompt.')
+  .option('--languages <codes>', 'Generate subtitles in multiple languages (comma-separated, e.g., en,es,fr). Transcribes in first language, then translates to others.')
   .option('-o, --output <path>', 'Output path for subtitle file (default: same as input with .srt extension)')
   .option('--track <number>', 'Specify audio track number to use (default: prompts if multiple tracks)')
   .option('--auto', 'Automatically use first audio track if multiple exist (no prompt)')
@@ -48,6 +49,13 @@ async function main() {
     debug(`Input: ${options.input}`);
     debug(`Output: ${options.output}`);
 
+    // Parse languages option if provided
+    let targetLanguages = null;
+    if (options.languages) {
+      targetLanguages = options.languages.split(',').map(lang => lang.trim());
+      console.log(`Generating subtitles for languages: ${targetLanguages.join(', ')}`);
+    }
+
     // Initialize Syncscribe generator
     const generator = new SubtitleGenerator({
       appRootPath,
@@ -61,11 +69,16 @@ async function main() {
       inputPath: options.input,
       outputPath: options.output,
       language: options.language,
+      languages: targetLanguages,
       trackNumber: options.track ? parseInt(options.track) : null,
       autoConfirm: !!options.auto
     });
 
-    console.log(`\nSubtitles generated successfully: ${options.output}`);
+    if (targetLanguages && targetLanguages.length > 0) {
+      console.log(`\nSubtitles generated successfully for ${targetLanguages.length} language(s)`);
+    } else {
+      console.log(`\nSubtitles generated successfully: ${options.output}`);
+    }
 
   } catch (error) {
     console.error('Error:', error.message);
