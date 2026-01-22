@@ -1,0 +1,54 @@
+{
+  "name": "syncscribe",
+  "version": "1.0.0",
+  "description": "AI-powered subtitle generation with automatic timing synchronization",
+  "main": "app.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yourusername/syncscribe.git"
+  },
+  "bugs": {
+    "url": "https://github.com/yourusername/syncscribe/issues"
+  },
+  "homepage": "https://github.com/yourusername/syncscribe#readme",
+  "scripts": {
+    "start": "node app.js",
+    "extract": "node extract-audio.js",
+    "extract:src": "node extract-audio.js --dir ./src",
+    "generate": "node generate-and-sync.js",
+    "shift": "node shift-timing.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "subtitles",
+    "transcription",
+    "whisper",
+    "openai",
+    "srt",
+    "video",
+    "audio",
+    "cli",
+    "ffmpeg",
+    "anime",
+    "ai",
+    "speech-to-text"
+  ],
+  "author": "",
+  "license": "ISC",
+  "engines": {
+    "node": ">=16.0.0",
+    "npm": ">=7.0.0"
+  },
+  "dependencies": {
+    "app-root-path": "^3.1.0",
+    "commander": "^12.0.0",
+    "debug": "^4.3.4",
+    "dotenv": "^16.4.0",
+    "ffmpeg-static": "^5.2.0",
+    "ffprobe-static": "^3.1.0",
+    "fluent-ffmpeg": "^2.1.2",
+    "fs-extra": "^11.2.0",
+    "inquirer": "^9.2.0",
+    "openai": "^4.28.0"
+  }
+}

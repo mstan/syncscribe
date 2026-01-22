@@ -1,0 +1,37 @@
+# Dependencies
+node_modules/
+
+# Environment variables
+.env
+.env.local
+
+# Temporary files
+tmp/*
+!tmp/.gitkeep
+output/*
+!output/.gitkeep
+
+# Source video files (user's content)
+src/
+
+# Logs
+*.log
+npm-debug.log*
+debug.log
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Generated files
+*.srt
+*.mp3
+*.synced.srt
