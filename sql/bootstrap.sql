@@ -24,9 +24,9 @@ CREATE TABLE IF NOT EXISTS credit_packs (
 
 -- Seed default packs
 INSERT INTO credit_packs (id, name, minutes_amount, price_cents, active) VALUES
-  ('starter', 'Starter', 150, 500, true),
-  ('standard', 'Standard', 600, 1500, true),
-  ('large', 'Large', 2000, 4000, true)
+  ('single', 'Single', 120, 499, true),
+  ('season', 'Season', 400, 1299, true),
+  ('studio', 'Studio', 1500, 3999, true)
 ON CONFLICT (id) DO NOTHING;
 
 -- Purchases (Stripe payments)

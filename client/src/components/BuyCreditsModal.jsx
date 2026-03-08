@@ -5,16 +5,17 @@ import api from '../api';
  * Fallback credit packs if the API is unavailable.
  */
 const DEFAULT_PACKS = [
-  { id: 'starter', name: 'Starter', minutes_amount: 150, price_cents: 500 },
-  { id: 'standard', name: 'Standard', minutes_amount: 600, price_cents: 1500 },
-  { id: 'large', name: 'Large', minutes_amount: 2000, price_cents: 4000 }
+  { id: 'single', name: 'Single', minutes_amount: 120, price_cents: 499 },
+  { id: 'season', name: 'Season', minutes_amount: 400, price_cents: 1299 },
+  { id: 'studio', name: 'Studio', minutes_amount: 1500, price_cents: 3999 }
 ];
 
 /**
  * Format cents to dollar string.
  */
 function formatPrice(cents) {
-  return `$${(cents / 100).toFixed(0)}`;
+  const dollars = cents / 100;
+  return dollars % 1 === 0 ? `$${dollars}` : `$${dollars.toFixed(2)}`;
 }
 
 /**
