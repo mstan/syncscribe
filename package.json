@@ -1,7 +1,7 @@
 {
   "name": "syncscribe",
-  "version": "1.0.0",
-  "description": "AI-powered subtitle generation with automatic timing synchronization",
+  "version": "2.0.0",
+  "description": "AI-powered subtitle generation - CLI tool and web application",
   "main": "app.js",
   "repository": {
     "type": "git",
@@ -13,10 +13,15 @@
   "homepage": "https://github.com/yourusername/syncscribe#readme",
   "scripts": {
     "start": "node app.js",
+    "dev": "nodemon app.js",
+    "cli": "node cli.js",
     "extract": "node extract-audio.js",
     "extract:src": "node extract-audio.js --dir ./src",
     "generate": "node generate-and-sync.js",
     "shift": "node shift-timing.js",
+    "client:dev": "cd client && npm run dev",
+    "client:build": "cd client && npm run build",
+    "client:install": "cd client && npm install",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [
@@ -25,30 +30,49 @@
     "whisper",
     "openai",
     "srt",
+    "vtt",
     "video",
     "audio",
     "cli",
+    "web",
     "ffmpeg",
-    "anime",
     "ai",
-    "speech-to-text"
+    "speech-to-text",
+    "translation"
   ],
   "author": "",
   "license": "ISC",
   "engines": {
-    "node": ">=16.0.0",
+    "node": ">=18.0.0",
     "npm": ">=7.0.0"
   },
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.500.0",
+    "@aws-sdk/s3-request-presigner": "^3.500.0",
     "app-root-path": "^3.1.0",
     "commander": "^12.0.0",
+    "cookie-parser": "^1.4.6",
+    "cors": "^2.8.5",
     "debug": "^4.3.4",
     "dotenv": "^16.4.0",
+    "express": "^4.18.0",
+    "express-rate-limit": "^7.1.0",
     "ffmpeg-static": "^5.2.0",
     "ffprobe-static": "^3.1.0",
     "fluent-ffmpeg": "^2.1.2",
     "fs-extra": "^11.2.0",
+    "google-auth-library": "^9.6.0",
+    "helmet": "^7.1.0",
     "inquirer": "^9.2.0",
-    "openai": "^4.28.0"
+    "jsonwebtoken": "^9.0.0",
+    "morgan": "^1.10.0",
+    "openai": "^4.28.0",
+    "pg": "^8.11.0",
+    "pg-boss": "^9.0.0",
+    "stripe": "^14.0.0",
+    "uuid": "^9.0.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.0"
   }
 }
