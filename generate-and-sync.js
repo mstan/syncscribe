@@ -93,7 +93,7 @@ async function main() {
     const transcribeArgs = ['-i', audioFile, '--auto'];
     if (options.language) transcribeArgs.push('--language', options.language);
 
-    await runCommand('node', ['app.js', ...transcribeArgs], 'Step 2: Transcribing with Whisper API');
+    await runCommand('node', ['cli.js', ...transcribeArgs], 'Step 2: Transcribing with Whisper API');
 
     const rawSrtPath = `${basePath}.srt`;
 
