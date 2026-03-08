@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { Routes, Route } from 'react-router-dom';
 import useAuth from './hooks/useAuth';
 import useCredits from './hooks/useCredits';
@@ -139,6 +139,13 @@ function MainPage() {
    * Determine when to show the result panel.
    */
   const showResult = view === VIEW.PROGRESS && jobHook.job?.status === 'succeeded';
+
+  // Refresh credits when job completes (credits were debited server-side)
+  useEffect(() => {
+    if (jobHook.job?.status === 'succeeded' || jobHook.job?.status === 'failed') {
+      credits.refresh();
+    }
+  }, [jobHook.job?.status, credits]);
 
   return (
     <AppShell
