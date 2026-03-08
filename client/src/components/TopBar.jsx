@@ -32,6 +32,9 @@ export default function TopBar({ user, isAuthenticated, balance, onBuyCredits, o
             <path d="M2 12l10 5 10-5" />
           </svg>
           SyncScribe
+          <span className="rounded-md bg-brand-100 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-brand-600">
+            Beta
+          </span>
         </a>
 
         {/* Right side controls */}
