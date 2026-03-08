@@ -39,10 +39,12 @@ function parseDuration(logs) {
   for (const line of logs) {
     const match = line.match(/Duration:\s*(\d+):(\d+):(\d+)\.(\d+)/);
     if (match) {
-      return parseInt(match[1]) * 3600
-           + parseInt(match[2]) * 60
-           + parseInt(match[3])
-           + parseInt(match[4]) / 100;
+      return Math.round(
+        parseInt(match[1]) * 3600
+        + parseInt(match[2]) * 60
+        + parseInt(match[3])
+        + parseInt(match[4]) / 100
+      );
     }
   }
   return null;
@@ -217,8 +219,8 @@ export default function UploadDropzone({ isAuthenticated, onAuthRequired, onAudi
       const exitCode = await ffmpeg.exec([
         '-i', inputName,
         '-map', `0:a:${audioIndex}`,
-        '-vn', '-ac', '1', '-ar', '16000', '-c:a', 'flac',
-        'output.flac'
+        '-vn', '-ac', '1', '-ar', '16000', '-c:a', 'libmp3lame', '-b:a', '48k',
+        'output.mp3'
       ]);
       const logs = [...probeLogsRef.current];
       probeLogsRef.current = null;
@@ -237,13 +239,13 @@ export default function UploadDropzone({ isAuthenticated, onAuthRequired, onAudi
 
       // Read the output
       setProgressMessage('Preparing audio data...');
-      const outputData = await ffmpeg.readFile('output.flac');
+      const outputData = await ffmpeg.readFile('output.mp3');
       const audioBuffer = outputData.buffer;
 
       // Cleanup virtual filesystem
       try {
         await ffmpeg.deleteFile(inputName);
-        await ffmpeg.deleteFile('output.flac');
+        await ffmpeg.deleteFile('output.mp3');
       } catch {
         // Non-critical cleanup error
       }
@@ -326,8 +328,8 @@ export default function UploadDropzone({ isAuthenticated, onAuthRequired, onAudi
         '-vn',
         '-ac', '1',
         '-ar', '16000',
-        '-c:a', 'flac',
-        'output.flac'
+        '-c:a', 'libmp3lame', '-b:a', '48k',
+        'output.mp3'
       ]);
 
       // Capture logs and detect tracks
@@ -350,11 +352,11 @@ export default function UploadDropzone({ isAuthenticated, onAuthRequired, onAudi
 
       // Read the extracted output
       setProgressMessage('Preparing audio data...');
-      const outputData = await ffmpeg.readFile('output.flac');
+      const outputData = await ffmpeg.readFile('output.mp3');
       const audioBuffer = outputData.buffer;
 
       // Delete output file (keep input in case of re-extraction)
-      try { await ffmpeg.deleteFile('output.flac'); } catch {}
+      try { await ffmpeg.deleteFile('output.mp3'); } catch {}
 
       // Compute SHA-256
       setProgressMessage('Computing file hash...');
