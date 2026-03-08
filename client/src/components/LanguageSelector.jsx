@@ -39,7 +39,7 @@ const TRANSLATION_LANGUAGES = LANGUAGES.filter(l => l.code !== 'auto');
  * @param {function} onConfirm - Called with { language, additional_languages }
  * @param {function} onBack - Called when user clicks Back
  */
-export default function LanguageSelector({ fileName, detectedLanguage, onConfirm, onBack }) {
+export default function LanguageSelector({ fileName, detectedLanguage, thumbnailUrl, onConfirm, onBack }) {
   // Default to detected language if available, otherwise auto-detect
   const defaultLang = detectedLanguage && LANGUAGES.some(l => l.code === detectedLanguage)
     ? detectedLanguage
@@ -82,6 +82,13 @@ export default function LanguageSelector({ fileName, detectedLanguage, onConfirm
     <div className="flex flex-col items-center">
       {/* Header */}
       <div className="mb-8 text-center">
+        {thumbnailUrl && (
+          <img
+            src={thumbnailUrl}
+            alt=""
+            className="mx-auto mb-4 h-32 w-auto rounded-lg shadow-sm"
+          />
+        )}
         <h1 className="mb-2 text-2xl font-bold text-gray-900">
           Language Settings
         </h1>

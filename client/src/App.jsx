@@ -169,6 +169,7 @@ function MainPage() {
           <LanguageSelector
             fileName={audioData.fileName}
             detectedLanguage={audioData.trackLanguage}
+            thumbnailUrl={audioData.thumbnailUrl}
             onConfirm={handleLanguageSelected}
             onBack={handleBackToUpload}
           />
@@ -181,6 +182,7 @@ function MainPage() {
             language={languageConfig.language}
             additionalLanguages={languageConfig.additional_languages}
             balance={credits.balance}
+            thumbnailUrl={audioData.thumbnailUrl}
             onConfirm={handleConfirmJob}
             onBack={handleBackToLanguage}
             onBuyCredits={() => setShowBuyCredits(true)}
@@ -192,6 +194,7 @@ function MainPage() {
           <JobProgress
             job={jobHook.job}
             error={jobHook.error}
+            thumbnailUrl={audioData?.thumbnailUrl}
             onRetry={handleReset}
           />
         )}
@@ -201,6 +204,8 @@ function MainPage() {
           <ResultPanel
             job={jobHook.job}
             onReset={handleReset}
+            fileName={audioData?.fileName}
+            thumbnailUrl={audioData?.thumbnailUrl}
           />
         )}
       </div>

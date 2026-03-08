@@ -242,6 +242,24 @@ export default function UploadDropzone({ isAuthenticated, onAuthRequired, onAudi
       const outputData = await ffmpeg.readFile('output.mp3');
       const audioBuffer = outputData.buffer;
 
+      // Extract thumbnail before cleanup
+      let thumbnailUrl = null;
+      try {
+        const thumbExit = await ffmpeg.exec([
+          '-i', inputName,
+          '-ss', '5',
+          '-vframes', '1',
+          '-vf', 'scale=320:-1',
+          '-f', 'image2',
+          'thumb.jpg'
+        ]);
+        if (thumbExit === 0) {
+          const thumbData = await ffmpeg.readFile('thumb.jpg');
+          thumbnailUrl = URL.createObjectURL(new Blob([thumbData.buffer], { type: 'image/jpeg' }));
+          try { await ffmpeg.deleteFile('thumb.jpg'); } catch {}
+        }
+      } catch {}
+
       // Cleanup virtual filesystem
       try {
         await ffmpeg.deleteFile(inputName);
@@ -270,7 +288,8 @@ export default function UploadDropzone({ isAuthenticated, onAuthRequired, onAudi
         seconds,
         fileName: fileNameRef.current,
         trackIndex: audioIndex,
-        trackLanguage
+        trackLanguage,
+        thumbnailUrl
       });
 
     } catch (err) {
@@ -369,13 +388,32 @@ export default function UploadDropzone({ isAuthenticated, onAuthRequired, onAudi
       const defaultTrackLang = detectedTracks[0]?.language;
       const trackLanguage = defaultTrackLang ? (LANG_CODE_MAP[defaultTrackLang.toLowerCase()] || null) : null;
 
+      // Extract thumbnail
+      let thumbnailUrl = null;
+      try {
+        const thumbExit = await ffmpeg.exec([
+          '-i', inputName,
+          '-ss', '5',
+          '-vframes', '1',
+          '-vf', 'scale=320:-1',
+          '-f', 'image2',
+          'thumb.jpg'
+        ]);
+        if (thumbExit === 0) {
+          const thumbData = await ffmpeg.readFile('thumb.jpg');
+          thumbnailUrl = URL.createObjectURL(new Blob([thumbData.buffer], { type: 'image/jpeg' }));
+          try { await ffmpeg.deleteFile('thumb.jpg'); } catch {}
+        }
+      } catch {}
+
       const audioResult = {
         buffer: audioBuffer,
         sha256,
         seconds,
         fileName: file.name,
         trackIndex: 0,
-        trackLanguage
+        trackLanguage,
+        thumbnailUrl
       };
 
       if (detectedTracks.length > 1) {

@@ -38,6 +38,7 @@ export default function CostBreakdown({
   language,
   additionalLanguages,
   balance,
+  thumbnailUrl,
   onConfirm,
   onBack,
   onBuyCredits
@@ -63,6 +64,13 @@ export default function CostBreakdown({
     <div className="flex flex-col items-center">
       {/* Header */}
       <div className="mb-8 text-center">
+        {thumbnailUrl && (
+          <img
+            src={thumbnailUrl}
+            alt=""
+            className="mx-auto mb-4 h-32 w-auto rounded-lg shadow-sm"
+          />
+        )}
         <h1 className="mb-2 text-2xl font-bold text-gray-900">
           Cost Estimate
         </h1>

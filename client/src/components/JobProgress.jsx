@@ -72,7 +72,7 @@ function PulsingDots() {
  * JobProgress -- displays the current status of a transcription job.
  * Shown while the job is being processed on the server.
  */
-export default function JobProgress({ job, error, onRetry }) {
+export default function JobProgress({ job, error, thumbnailUrl, onRetry }) {
   const status = job?.status || 'awaiting_upload';
   const config = STATUS_CONFIG[status] || STATUS_CONFIG.queued;
   const isFailed = status === 'failed' || (!!error && status === 'awaiting_upload');
@@ -81,6 +81,13 @@ export default function JobProgress({ job, error, onRetry }) {
     <div className="flex flex-col items-center">
       {/* Header */}
       <div className="mb-8 text-center">
+        {thumbnailUrl && (
+          <img
+            src={thumbnailUrl}
+            alt=""
+            className="mx-auto mb-4 h-32 w-auto rounded-lg shadow-sm"
+          />
+        )}
         <h1 className="mb-2 text-2xl font-bold text-gray-900">
           {isFailed ? 'Something Went Wrong' : 'Processing Your Video'}
         </h1>

@@ -33,7 +33,7 @@ function getLangName(code) {
 /**
  * Single download button component.
  */
-function DownloadButton({ jobId, language, format, label }) {
+function DownloadButton({ jobId, language, format, label, fileName }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
@@ -42,16 +42,21 @@ function DownloadButton({ jobId, language, format, label }) {
     setError(null);
     try {
       const result = await api.getSubtitleUrl(jobId, language, format);
-      // Open the download URL
       if (result.url) {
-        window.open(result.url, '_blank');
+        const res = await fetch(result.url);
+        const blob = await res.blob();
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = `${fileName}.${language}.${format}`;
+        a.click();
+        URL.revokeObjectURL(a.href);
       }
     } catch (err) {
       setError(err.message || 'Download failed');
     } finally {
       setLoading(false);
     }
-  }, [jobId, language, format]);
+  }, [jobId, language, format, fileName]);
 
   return (
     <div>
@@ -92,7 +97,7 @@ function DownloadButton({ jobId, language, format, label }) {
  * ResultPanel -- displayed when a job completes successfully.
  * Shows download buttons for each language and format.
  */
-export default function ResultPanel({ job, onReset }) {
+export default function ResultPanel({ job, onReset, fileName, thumbnailUrl }) {
   // Build the list of languages that have results
   const languages = [];
   if (job?.language) {
@@ -107,10 +112,19 @@ export default function ResultPanel({ job, onReset }) {
     languages.push('auto');
   }
 
+  const baseName = fileName?.replace(/\.[^.]+$/, '') || 'subtitles';
+
   return (
     <div className="flex flex-col items-center">
       {/* Header */}
       <div className="mb-8 text-center">
+        {thumbnailUrl && (
+          <img
+            src={thumbnailUrl}
+            alt=""
+            className="mx-auto mb-4 h-32 w-auto rounded-lg shadow-sm"
+          />
+        )}
         <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-green-100">
           <svg className="h-8 w-8 text-green-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
@@ -147,12 +161,14 @@ export default function ResultPanel({ job, onReset }) {
                 language={lang}
                 format="srt"
                 label="Download SRT"
+                fileName={baseName}
               />
               <DownloadButton
                 jobId={job.id}
                 language={lang}
                 format="vtt"
                 label="Download VTT"
+                fileName={baseName}
               />
             </div>
           </div>
