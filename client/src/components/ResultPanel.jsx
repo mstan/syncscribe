@@ -263,10 +263,12 @@ export default function ResultPanel({ job, onReset, fileName, thumbnailUrl, file
         args.push('-map', `${i + 1}`);
       }
 
-      // Copy codecs (no re-encoding)
-      args.push('-c:v', 'copy', '-c:a', 'copy', '-c:s', 'srt');
+      // Copy all codecs (no re-encoding). -map 0 preserves all original
+      // streams (video, audio, existing subtitles) non-destructively.
+      args.push('-c', 'copy');
 
-      // Set language metadata for each subtitle track
+      // Set language metadata for each new subtitle track.
+      // Our SRT inputs are mapped after all original streams.
       for (let i = 0; i < srtFiles.length; i++) {
         const iso3 = LANG_TO_ISO639_2[srtFiles[i].lang] || 'und';
         args.push(`-metadata:s:s:${i}`, `language=${iso3}`);
@@ -419,14 +421,14 @@ export default function ResultPanel({ job, onReset, fileName, thumbnailUrl, file
             </div>
           ) : null}
 
-          {/* Bulk action buttons */}
+          {/* Bulk action buttons — stacked full-width */}
           {(embedState === 'idle' || embedState === 'done' || embedState === 'error') && (
-            <div className="grid grid-cols-2 gap-3">
+            <div className="flex flex-col gap-3">
               {/* Download All */}
               <button
                 onClick={handleDownloadAll}
                 disabled={downloadAllLoading}
-                className="btn-primary justify-center gap-2.5 !py-3.5 text-base"
+                className="btn-primary w-full justify-center gap-2.5 !py-3.5 text-base"
               >
                 {downloadAllLoading ? (
                   <Spinner className="h-5 w-5 text-white/60" />
@@ -437,14 +439,14 @@ export default function ResultPanel({ job, onReset, fileName, thumbnailUrl, file
                     <line x1="12" y1="15" x2="12" y2="3" />
                   </svg>
                 )}
-                <span className="font-semibold">Download All</span>
+                <span className="font-semibold">Download All Subtitles</span>
               </button>
 
               {/* Embed in Video */}
               <button
                 onClick={() => handleEmbed()}
                 disabled={embedState === 'loading' || embedState === 'embedding'}
-                className="justify-center gap-2.5 !py-3.5 text-base inline-flex items-center rounded-lg border-0 font-semibold transition-colors bg-green-600 text-white hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full justify-center gap-2.5 !py-3.5 text-base inline-flex items-center rounded-lg border-0 font-semibold transition-colors bg-green-600 text-white hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18" />
@@ -456,7 +458,7 @@ export default function ResultPanel({ job, onReset, fileName, thumbnailUrl, file
                   <line x1="17" y1="7" x2="22" y2="7" />
                   <line x1="17" y1="17" x2="22" y2="17" />
                 </svg>
-                <span>{file ? 'Embed in Video' : 'Embed in Video...'}</span>
+                <span>{file ? 'Embed Subtitles in Video' : 'Embed Subtitles in Video...'}</span>
               </button>
             </div>
           )}
