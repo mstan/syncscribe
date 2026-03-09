@@ -133,6 +133,18 @@ function downloadBlob(blob, filename) {
 }
 
 /**
+ * Count existing subtitle streams by parsing ffmpeg log output.
+ */
+function countExistingSubStreams(logs) {
+  let count = 0;
+  for (const line of logs) {
+    if (/Output #|Stream mapping:/.test(line)) break;
+    if (/Stream #0:\d+.*: Subtitle:/.test(line)) count++;
+  }
+  return count;
+}
+
+/**
  * ResultPanel -- displayed when a job completes successfully.
  * Shows download buttons for each language and format,
  * plus Download All (zip) and Embed Subtitles in Video.
@@ -199,6 +211,8 @@ export default function ResultPanel({ job, onReset, fileName, thumbnailUrl, file
 
   /**
    * Embed Subtitles in Video -- mux SRT tracks into an MKV container client-side.
+   * Preserves all original streams (video, audio, existing subs) and appends
+   * our generated SRT tracks with correct language metadata.
    */
   const handleEmbed = useCallback(async (pickedFile) => {
     const videoFile = pickedFile || embedFileRef.current;
@@ -219,9 +233,15 @@ export default function ResultPanel({ job, onReset, fileName, thumbnailUrl, file
       const { fetchFile } = await import('@ffmpeg/util');
 
       const ffmpeg = new FFmpeg();
+      const probeLogs = [];
 
       ffmpeg.on('progress', ({ progress: p }) => {
         setEmbedProgress(Math.min(Math.round(p * 100), 100));
+      });
+
+      ffmpeg.on('log', ({ message }) => {
+        probeLogs.push(message);
+        console.debug('[ffmpeg:embed]', message);
       });
 
       await ffmpeg.load({
@@ -238,6 +258,12 @@ export default function ResultPanel({ job, onReset, fileName, thumbnailUrl, file
       const inputName = `input${inputExt}`;
       await ffmpeg.writeFile(inputName, await fetchFile(videoFile));
 
+      // Probe the file to count existing subtitle streams
+      setEmbedMessage('Analyzing video...');
+      probeLogs.length = 0;
+      await ffmpeg.exec(['-i', inputName, '-f', 'null', '-']);
+      const existingSubCount = countExistingSubStreams(probeLogs);
+
       // Fetch all SRT files and write to virtual FS
       setEmbedMessage('Fetching subtitle files...');
       const srtFiles = [];
@@ -250,6 +276,7 @@ export default function ResultPanel({ job, onReset, fileName, thumbnailUrl, file
 
       // Build ffmpeg command
       setEmbedMessage('Embedding subtitles...');
+      probeLogs.length = 0;
       const args = ['-i', inputName];
 
       // Add each SRT as input
@@ -257,21 +284,26 @@ export default function ResultPanel({ job, onReset, fileName, thumbnailUrl, file
         args.push('-i', srt.name);
       }
 
-      // Map only video+audio from original (skip any existing subtitle tracks
-      // to avoid index conflicts). Our generated SRTs replace them cleanly.
-      // The original file is never modified — this is a new MKV.
-      args.push('-map', '0:v', '-map', '0:a');
+      // Map ALL original streams (preserves video, audio, existing subs)
+      args.push('-map', '0');
+      // Map each of our new SRT inputs
       for (let i = 0; i < srtFiles.length; i++) {
         args.push('-map', `${i + 1}`);
       }
 
-      // Copy video+audio codecs (no re-encoding)
-      args.push('-c:v', 'copy', '-c:a', 'copy', '-c:s', 'srt');
+      // Copy all codecs (no re-encoding)
+      args.push('-c', 'copy');
 
-      // Set language metadata for each subtitle track
+      // Set language + title metadata for our new subtitle tracks,
+      // offset by the number of existing subtitle streams
       for (let i = 0; i < srtFiles.length; i++) {
+        const idx = existingSubCount + i;
         const iso3 = LANG_TO_ISO639_2[srtFiles[i].lang] || 'und';
-        args.push(`-metadata:s:s:${i}`, `language=${iso3}`);
+        const langName = getLangName(srtFiles[i].lang);
+        args.push(
+          `-metadata:s:s:${idx}`, `language=${iso3}`,
+          `-metadata:s:s:${idx}`, `title=${langName} (SyncScribe)`
+        );
       }
 
       args.push('output.mkv');
@@ -346,133 +378,102 @@ export default function ResultPanel({ job, onReset, fileName, thumbnailUrl, file
 
       {/* Downloads card */}
       <div className="w-full max-w-lg rounded-2xl border border-gray-200 bg-white p-8 shadow-sm dark:border-gray-700 dark:bg-gray-900">
-        {/* Download sections per language */}
-        {languages.map((lang, index) => (
-          <div key={lang} className={index > 0 ? 'mt-6 border-t border-gray-100 pt-6 dark:border-gray-800' : ''}>
-            {languages.length > 1 && (
-              <h3 className="mb-3 flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-300">
-                {getLangName(lang)}
-                {index > 0 && (
-                  <span className="rounded-full bg-green-100 px-2 py-0.5 text-xs font-medium text-green-700 dark:bg-green-950 dark:text-green-400">
-                    translation
-                  </span>
-                )}
-              </h3>
-            )}
 
-            <div className="grid grid-cols-2 gap-3">
-              <DownloadButton
-                jobId={job.id}
-                language={lang}
-                format="srt"
-                label="Download SRT"
-              />
-              <DownloadButton
-                jobId={job.id}
-                language={lang}
-                format="vtt"
-                label="Download VTT"
-              />
+        {/* ── Bulk actions (top) ─────────────────────────────────── */}
+
+        {/* Embed progress overlay */}
+        {(embedState === 'loading' || embedState === 'embedding') ? (
+          <div className="mb-6 rounded-xl border border-brand-200 bg-brand-50 p-5 dark:border-brand-800 dark:bg-brand-950">
+            <div className="mb-3 flex items-center gap-2">
+              <Spinner className="h-4 w-4 text-brand-600" />
+              <span className="text-sm font-medium text-brand-700 dark:text-brand-300">
+                {embedMessage}
+              </span>
             </div>
-          </div>
-        ))}
-
-        {/* Bulk actions divider */}
-        <div className="mt-6 border-t border-gray-200 pt-6 dark:border-gray-700">
-          {/* Embed progress overlay */}
-          {(embedState === 'loading' || embedState === 'embedding') ? (
-            <div className="rounded-xl border border-brand-200 bg-brand-50 p-5 dark:border-brand-800 dark:bg-brand-950">
-              <div className="mb-3 flex items-center gap-2">
-                <Spinner className="h-4 w-4 text-brand-600" />
-                <span className="text-sm font-medium text-brand-700 dark:text-brand-300">
-                  {embedMessage}
-                </span>
+            {embedState === 'embedding' && (
+              <div className="h-2 w-full overflow-hidden rounded-full bg-brand-100 dark:bg-brand-900">
+                <div
+                  className="h-full rounded-full bg-brand-600 transition-all duration-300 ease-out"
+                  style={{ width: `${embedProgress}%` }}
+                />
               </div>
-              {embedState === 'embedding' && (
-                <div className="h-2 w-full overflow-hidden rounded-full bg-brand-100 dark:bg-brand-900">
-                  <div
-                    className="h-full rounded-full bg-brand-600 transition-all duration-300 ease-out"
-                    style={{ width: `${embedProgress}%` }}
-                  />
-                </div>
-              )}
-            </div>
-          ) : embedState === 'error' ? (
-            <div className="mb-3 rounded-lg bg-red-50 px-4 py-3 dark:bg-red-950">
-              <p className="text-xs text-red-600 dark:text-red-400">{embedError}</p>
-              <button
-                onClick={() => setEmbedState('idle')}
-                className="mt-2 text-xs font-medium text-red-700 underline dark:text-red-300"
-              >
-                Dismiss
-              </button>
-            </div>
-          ) : embedState === 'done' ? (
-            <div className="mb-3 rounded-lg bg-green-50 px-4 py-3 dark:bg-green-950">
-              <p className="text-xs text-green-700 dark:text-green-400">
-                MKV with embedded subtitles downloaded successfully.
-              </p>
-              <button
-                onClick={() => setEmbedState('idle')}
-                className="mt-2 text-xs font-medium text-green-700 underline dark:text-green-300"
-              >
-                Dismiss
-              </button>
-            </div>
-          ) : null}
-
-          {/* Bulk action buttons — stacked full-width */}
-          {(embedState === 'idle' || embedState === 'done' || embedState === 'error') && (
-            <div className="flex flex-col gap-3">
-              {/* Download All */}
-              <button
-                onClick={handleDownloadAll}
-                disabled={downloadAllLoading}
-                className="btn-primary w-full justify-center gap-2.5 !py-3.5 text-base"
-              >
-                {downloadAllLoading ? (
-                  <Spinner className="h-5 w-5 text-white/60" />
-                ) : (
-                  <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-                    <polyline points="7 10 12 15 17 10" />
-                    <line x1="12" y1="15" x2="12" y2="3" />
-                  </svg>
-                )}
-                <span className="font-semibold">Download All Subtitles</span>
-              </button>
-
-              {/* Embed in Video */}
-              <button
-                onClick={() => handleEmbed()}
-                disabled={embedState === 'loading' || embedState === 'embedding'}
-                className="w-full justify-center gap-2.5 !py-3.5 text-base inline-flex items-center rounded-lg border-0 font-semibold transition-colors bg-green-600 text-white hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18" />
-                  <line x1="7" y1="2" x2="7" y2="22" />
-                  <line x1="17" y1="2" x2="17" y2="22" />
-                  <line x1="2" y1="12" x2="22" y2="12" />
-                  <line x1="2" y1="7" x2="7" y2="7" />
-                  <line x1="2" y1="17" x2="7" y2="17" />
-                  <line x1="17" y1="7" x2="22" y2="7" />
-                  <line x1="17" y1="17" x2="22" y2="17" />
-                </svg>
-                <span>{file ? 'Embed Subtitles in Video' : 'Embed Subtitles in Video...'}</span>
-              </button>
-            </div>
-          )}
-
-          {downloadAllError && (
-            <p className="mt-2 text-xs text-red-600 dark:text-red-400">{downloadAllError}</p>
-          )}
-
-          {!file && embedState === 'idle' && (
-            <p className="mt-2 text-center text-xs text-gray-400 dark:text-gray-500">
-              Embed will prompt you to re-select your video file.
+            )}
+          </div>
+        ) : embedState === 'error' ? (
+          <div className="mb-6 rounded-lg bg-red-50 px-4 py-3 dark:bg-red-950">
+            <p className="text-xs text-red-600 dark:text-red-400">{embedError}</p>
+            <button
+              onClick={() => setEmbedState('idle')}
+              className="mt-2 text-xs font-medium text-red-700 underline dark:text-red-300"
+            >
+              Dismiss
+            </button>
+          </div>
+        ) : embedState === 'done' ? (
+          <div className="mb-6 rounded-lg bg-green-50 px-4 py-3 dark:bg-green-950">
+            <p className="text-xs text-green-700 dark:text-green-400">
+              MKV with embedded subtitles downloaded successfully.
             </p>
-          )}
-        </div>
+            <button
+              onClick={() => setEmbedState('idle')}
+              className="mt-2 text-xs font-medium text-green-700 underline dark:text-green-300"
+            >
+              Dismiss
+            </button>
+          </div>
+        ) : null}
+
+        {/* Bulk action buttons — stacked full-width */}
+        {(embedState === 'idle' || embedState === 'done' || embedState === 'error') && (
+          <div className="mb-6 flex flex-col gap-3">
+            {/* Download All */}
+            <button
+              onClick={handleDownloadAll}
+              disabled={downloadAllLoading}
+              className="btn-primary w-full justify-center gap-2.5 !py-3.5 text-base"
+            >
+              {downloadAllLoading ? (
+                <Spinner className="h-5 w-5 text-white/60" />
+              ) : (
+                <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                  <polyline points="7 10 12 15 17 10" />
+                  <line x1="12" y1="15" x2="12" y2="3" />
+                </svg>
+              )}
+              <span className="font-semibold">Download All Subtitles</span>
+            </button>
+
+            {/* Embed in Video */}
+            <button
+              onClick={() => handleEmbed()}
+              disabled={embedState === 'loading' || embedState === 'embedding'}
+              className="w-full justify-center gap-2.5 !py-3.5 text-base inline-flex items-center rounded-lg border-0 font-semibold transition-colors bg-green-600 text-white hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18" />
+                <line x1="7" y1="2" x2="7" y2="22" />
+                <line x1="17" y1="2" x2="17" y2="22" />
+                <line x1="2" y1="12" x2="22" y2="12" />
+                <line x1="2" y1="7" x2="7" y2="7" />
+                <line x1="2" y1="17" x2="7" y2="17" />
+                <line x1="17" y1="7" x2="22" y2="7" />
+                <line x1="17" y1="17" x2="22" y2="17" />
+              </svg>
+              <span>{file ? 'Embed Subtitles in Video' : 'Embed Subtitles in Video...'}</span>
+            </button>
+          </div>
+        )}
+
+        {downloadAllError && (
+          <p className="mb-4 text-xs text-red-600 dark:text-red-400">{downloadAllError}</p>
+        )}
+
+        {!file && embedState === 'idle' && (
+          <p className="mb-4 text-center text-xs text-gray-400 dark:text-gray-500">
+            Embed will prompt you to re-select your video file.
+          </p>
+        )}
 
         {/* Hidden file picker for embed fallback */}
         <input
@@ -482,6 +483,42 @@ export default function ResultPanel({ job, onReset, fileName, thumbnailUrl, file
           onChange={handleEmbedFilePick}
           className="hidden"
         />
+
+        {/* ── Per-language individual downloads ─────────────────── */}
+        <div className="border-t border-gray-200 pt-6 dark:border-gray-700">
+          <p className="mb-4 text-xs font-medium uppercase tracking-wider text-gray-400 dark:text-gray-500">
+            Individual Files
+          </p>
+          {languages.map((lang, index) => (
+            <div key={lang} className={index > 0 ? 'mt-4 border-t border-gray-100 pt-4 dark:border-gray-800' : ''}>
+              {languages.length > 1 && (
+                <h3 className="mb-3 flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-300">
+                  {getLangName(lang)}
+                  {index > 0 && (
+                    <span className="rounded-full bg-green-100 px-2 py-0.5 text-xs font-medium text-green-700 dark:bg-green-950 dark:text-green-400">
+                      translation
+                    </span>
+                  )}
+                </h3>
+              )}
+
+              <div className="grid grid-cols-2 gap-3">
+                <DownloadButton
+                  jobId={job.id}
+                  language={lang}
+                  format="srt"
+                  label="Download SRT"
+                />
+                <DownloadButton
+                  jobId={job.id}
+                  language={lang}
+                  format="vtt"
+                  label="Download VTT"
+                />
+              </div>
+            </div>
+          ))}
+        </div>
 
         {/* Sharing encouragement */}
         <div className="mt-6 flex items-start gap-2.5 rounded-lg bg-brand-50 px-4 py-3 dark:bg-brand-950">
