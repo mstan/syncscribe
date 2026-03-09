@@ -1,34 +1,245 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useRef, useEffect, useMemo } from 'react';
+import langConfig from '../../../shared/languages.js';
+const { LANGUAGES, AUTO_DETECT, getLangName } = langConfig;
 
 /**
- * Available languages for transcription and translation.
+ * Searchable single-select dropdown.
  */
-const LANGUAGES = [
-  { code: 'auto', name: 'Auto-detect' },
-  { code: 'en', name: 'English' },
-  { code: 'ja', name: 'Japanese' },
-  { code: 'es', name: 'Spanish' },
-  { code: 'fr', name: 'French' },
-  { code: 'de', name: 'German' },
-  { code: 'it', name: 'Italian' },
-  { code: 'pt', name: 'Portuguese' },
-  { code: 'zh', name: 'Chinese' },
-  { code: 'ko', name: 'Korean' },
-  { code: 'ru', name: 'Russian' },
-  { code: 'ar', name: 'Arabic' },
-  { code: 'hi', name: 'Hindi' },
-  { code: 'nl', name: 'Dutch' },
-  { code: 'pl', name: 'Polish' },
-  { code: 'sv', name: 'Swedish' },
-  { code: 'tr', name: 'Turkish' },
-  { code: 'th', name: 'Thai' },
-  { code: 'vi', name: 'Vietnamese' }
-];
+function SearchableSelect({ options, value, onChange, placeholder }) {
+  const [open, setOpen] = useState(false);
+  const [query, setQuery] = useState('');
+  const [highlightIndex, setHighlightIndex] = useState(0);
+  const containerRef = useRef(null);
+  const inputRef = useRef(null);
+
+  const filtered = useMemo(() => {
+    if (!query) return options;
+    const q = query.toLowerCase();
+    return options.filter(o => o.name.toLowerCase().includes(q));
+  }, [options, query]);
+
+  useEffect(() => { setHighlightIndex(0); }, [filtered]);
+
+  // Close on outside click
+  useEffect(() => {
+    if (!open) return;
+    const handler = (e) => {
+      if (containerRef.current && !containerRef.current.contains(e.target)) {
+        setOpen(false);
+        setQuery('');
+      }
+    };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, [open]);
+
+  const select = useCallback((code) => {
+    onChange(code);
+    setOpen(false);
+    setQuery('');
+  }, [onChange]);
+
+  const handleKeyDown = useCallback((e) => {
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      setHighlightIndex(i => Math.min(i + 1, filtered.length - 1));
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      setHighlightIndex(i => Math.max(i - 1, 0));
+    } else if (e.key === 'Enter' && filtered[highlightIndex]) {
+      e.preventDefault();
+      select(filtered[highlightIndex].code);
+    } else if (e.key === 'Escape') {
+      setOpen(false);
+      setQuery('');
+    }
+  }, [filtered, highlightIndex, select]);
+
+  const selectedName = options.find(o => o.code === value)?.name || value;
+
+  return (
+    <div ref={containerRef} className="relative">
+      <div
+        className="flex w-full cursor-text items-center gap-2 rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm shadow-sm transition-colors focus-within:border-brand-500 focus-within:ring-2 focus-within:ring-brand-500/20 dark:border-gray-600 dark:bg-gray-800"
+        onClick={() => { setOpen(true); inputRef.current?.focus(); }}
+      >
+        {!open && value && (
+          <span className="inline-flex items-center gap-1 rounded-md bg-brand-50 px-2 py-0.5 text-sm font-medium text-brand-700 dark:bg-brand-950 dark:text-brand-300">
+            {selectedName}
+          </span>
+        )}
+        <input
+          ref={inputRef}
+          type="text"
+          className="min-w-[80px] flex-1 bg-transparent text-gray-900 outline-none placeholder:text-gray-400 dark:text-gray-100 dark:placeholder:text-gray-500"
+          placeholder={open ? 'Type to search...' : (value ? '' : placeholder)}
+          value={query}
+          onChange={(e) => { setQuery(e.target.value); if (!open) setOpen(true); }}
+          onFocus={() => setOpen(true)}
+          onKeyDown={handleKeyDown}
+        />
+        <svg className="h-4 w-4 flex-shrink-0 text-gray-400 dark:text-gray-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <polyline points="6 9 12 15 18 9" />
+        </svg>
+      </div>
+      {open && (
+        <div className="absolute z-50 mt-1 max-h-60 w-full overflow-auto rounded-lg border border-gray-200 bg-white py-1 shadow-lg dark:border-gray-700 dark:bg-gray-800">
+          {filtered.length === 0 ? (
+            <div className="px-3 py-2 text-sm text-gray-400 dark:text-gray-500">No languages found</div>
+          ) : (
+            filtered.map((opt, i) => (
+              <button
+                key={opt.code}
+                className={`flex w-full items-center justify-between px-3 py-2 text-left text-sm transition-colors ${
+                  i === highlightIndex
+                    ? 'bg-brand-50 text-brand-700 dark:bg-brand-950 dark:text-brand-300'
+                    : 'text-gray-700 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-gray-700'
+                }`}
+                onMouseEnter={() => setHighlightIndex(i)}
+                onClick={() => select(opt.code)}
+              >
+                <span>{opt.name}</span>
+                {opt.code === value && (
+                  <svg className="h-4 w-4 text-brand-600 dark:text-brand-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                    <polyline points="20 6 9 17 4 12" />
+                  </svg>
+                )}
+              </button>
+            ))
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
 
 /**
- * Languages available for additional translations (excludes auto-detect).
+ * Multi-select tag input with autocomplete.
  */
-const TRANSLATION_LANGUAGES = LANGUAGES.filter(l => l.code !== 'auto');
+function TagInput({ options, selected, onChange, placeholder }) {
+  const [open, setOpen] = useState(false);
+  const [query, setQuery] = useState('');
+  const [highlightIndex, setHighlightIndex] = useState(0);
+  const containerRef = useRef(null);
+  const inputRef = useRef(null);
+
+  const available = useMemo(() => {
+    const set = new Set(selected);
+    let opts = options.filter(o => !set.has(o.code));
+    if (query) {
+      const q = query.toLowerCase();
+      opts = opts.filter(o => o.name.toLowerCase().includes(q));
+    }
+    return opts;
+  }, [options, selected, query]);
+
+  useEffect(() => { setHighlightIndex(0); }, [available]);
+
+  // Close on outside click
+  useEffect(() => {
+    if (!open) return;
+    const handler = (e) => {
+      if (containerRef.current && !containerRef.current.contains(e.target)) {
+        setOpen(false);
+        setQuery('');
+      }
+    };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, [open]);
+
+  const add = useCallback((code) => {
+    onChange([...selected, code]);
+    setQuery('');
+    inputRef.current?.focus();
+  }, [selected, onChange]);
+
+  const remove = useCallback((code) => {
+    onChange(selected.filter(c => c !== code));
+  }, [selected, onChange]);
+
+  const handleKeyDown = useCallback((e) => {
+    if (e.key === 'Backspace' && !query && selected.length > 0) {
+      onChange(selected.slice(0, -1));
+    } else if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      setHighlightIndex(i => Math.min(i + 1, available.length - 1));
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      setHighlightIndex(i => Math.max(i - 1, 0));
+    } else if (e.key === 'Enter' && available[highlightIndex]) {
+      e.preventDefault();
+      add(available[highlightIndex].code);
+    } else if (e.key === 'Escape') {
+      setOpen(false);
+      setQuery('');
+    }
+  }, [query, selected, available, highlightIndex, add, onChange]);
+
+  return (
+    <div ref={containerRef} className="relative">
+      <div
+        className="flex w-full cursor-text flex-wrap items-center gap-1.5 rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm shadow-sm transition-colors focus-within:border-brand-500 focus-within:ring-2 focus-within:ring-brand-500/20 dark:border-gray-600 dark:bg-gray-800"
+        onClick={() => { setOpen(true); inputRef.current?.focus(); }}
+      >
+        {selected.map(code => (
+          <span
+            key={code}
+            className="inline-flex items-center gap-1 rounded-md bg-brand-50 px-2 py-0.5 text-sm font-medium text-brand-700 dark:bg-brand-950 dark:text-brand-300"
+          >
+            {getLangName(code)}
+            <button
+              onClick={(e) => { e.stopPropagation(); remove(code); }}
+              className="ml-0.5 rounded hover:text-brand-900 dark:hover:text-brand-100"
+            >
+              <svg className="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="18" y1="6" x2="6" y2="18" />
+                <line x1="6" y1="6" x2="18" y2="18" />
+              </svg>
+            </button>
+          </span>
+        ))}
+        <input
+          ref={inputRef}
+          type="text"
+          className="min-w-[80px] flex-1 bg-transparent text-gray-900 outline-none placeholder:text-gray-400 dark:text-gray-100 dark:placeholder:text-gray-500"
+          placeholder={selected.length === 0 ? placeholder : 'Add language...'}
+          value={query}
+          onChange={(e) => { setQuery(e.target.value); if (!open) setOpen(true); }}
+          onFocus={() => setOpen(true)}
+          onKeyDown={handleKeyDown}
+        />
+      </div>
+      {open && (
+        <div className="absolute z-50 mt-1 max-h-60 w-full overflow-auto rounded-lg border border-gray-200 bg-white py-1 shadow-lg dark:border-gray-700 dark:bg-gray-800">
+          {available.length === 0 ? (
+            <div className="px-3 py-2 text-sm text-gray-400 dark:text-gray-500">
+              {query ? 'No languages found' : 'All languages selected'}
+            </div>
+          ) : (
+            available.map((opt, i) => (
+              <button
+                key={opt.code}
+                className={`w-full px-3 py-2 text-left text-sm transition-colors ${
+                  i === highlightIndex
+                    ? 'bg-brand-50 text-brand-700 dark:bg-brand-950 dark:text-brand-300'
+                    : 'text-gray-700 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-gray-700'
+                }`}
+                onMouseEnter={() => setHighlightIndex(i)}
+                onClick={() => add(opt.code)}
+              >
+                {opt.name}
+              </button>
+            ))
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+/** All options for the primary dropdown: Auto-detect + all languages. */
+const PRIMARY_OPTIONS = [AUTO_DETECT, ...LANGUAGES];
 
 /**
  * LanguageSelector -- shown after audio extraction.
@@ -49,28 +260,18 @@ export default function LanguageSelector({ fileName, detectedLanguage, thumbnail
   const [showAdditional, setShowAdditional] = useState(false);
   const [additionalLanguages, setAdditionalLanguages] = useState([]);
 
-  /**
-   * Toggle an additional language in/out of the selection.
-   */
-  const toggleLanguage = useCallback((code) => {
-    setAdditionalLanguages(prev => {
-      if (prev.includes(code)) {
-        return prev.filter(c => c !== code);
-      }
-      return [...prev, code];
-    });
-  }, []);
-
-  /**
-   * Get the list of additional languages available (exclude the primary).
-   */
-  const availableTranslations = TRANSLATION_LANGUAGES.filter(l =>
-    l.code !== primaryLanguage
+  /** Languages available for additional translations (exclude primary). */
+  const additionalOptions = useMemo(
+    () => LANGUAGES.filter(l => l.code !== primaryLanguage),
+    [primaryLanguage]
   );
 
-  /**
-   * Handle confirmation.
-   */
+  const handlePrimaryChange = useCallback((code) => {
+    setPrimaryLanguage(code);
+    // Remove from additional if user switches primary to a lang that was additional
+    setAdditionalLanguages(prev => prev.filter(l => l !== code));
+  }, []);
+
   const handleConfirm = useCallback(() => {
     onConfirm({
       language: primaryLanguage,
@@ -110,21 +311,12 @@ export default function LanguageSelector({ fileName, detectedLanguage, thumbnail
               <span className="ml-1 text-brand-600 dark:text-brand-400">(detected from audio track)</span>
             )}
           </p>
-          <select
+          <SearchableSelect
+            options={PRIMARY_OPTIONS}
             value={primaryLanguage}
-            onChange={(e) => {
-              setPrimaryLanguage(e.target.value);
-              // Remove from additional if user switches primary to a lang that was additional
-              setAdditionalLanguages(prev => prev.filter(l => l !== e.target.value));
-            }}
-            className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm text-gray-900 shadow-sm transition-colors focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/20 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100"
-          >
-            {LANGUAGES.map(lang => (
-              <option key={lang.code} value={lang.code}>
-                {lang.name}
-              </option>
-            ))}
-          </select>
+            onChange={handlePrimaryChange}
+            placeholder="Search languages..."
+          />
         </div>
 
         {/* Divider */}
@@ -175,32 +367,13 @@ export default function LanguageSelector({ fileName, detectedLanguage, thumbnail
               </p>
             </div>
 
-            {/* Language chips */}
-            <div className="flex flex-wrap gap-2">
-              {availableTranslations.map(lang => {
-                const isSelected = additionalLanguages.includes(lang.code);
-                return (
-                  <button
-                    key={lang.code}
-                    onClick={() => toggleLanguage(lang.code)}
-                    className={`
-                      rounded-lg border px-3 py-1.5 text-sm font-medium transition-all duration-150
-                      ${isSelected
-                        ? 'border-brand-300 bg-brand-50 text-brand-700 shadow-sm dark:border-brand-700 dark:bg-brand-950 dark:text-brand-300'
-                        : 'border-gray-200 bg-white text-gray-600 hover:border-gray-300 hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-400 dark:hover:border-gray-600 dark:hover:bg-gray-800'
-                      }
-                    `}
-                  >
-                    {isSelected && (
-                      <svg className="mr-1 -ml-0.5 inline h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-                        <polyline points="20 6 9 17 4 12" />
-                      </svg>
-                    )}
-                    {lang.name}
-                  </button>
-                );
-              })}
-            </div>
+            {/* Tag input for additional languages */}
+            <TagInput
+              options={additionalOptions}
+              selected={additionalLanguages}
+              onChange={setAdditionalLanguages}
+              placeholder="Search languages to add..."
+            />
 
             {additionalLanguages.length > 0 && (
               <button

@@ -1,4 +1,6 @@
 import { useState, useRef, useCallback } from 'react';
+import langConfig from '../../../shared/languages.js';
+const { ISO639_2_NAMES, ISO639_2_TO_1 } = langConfig;
 
 /**
  * Accepted video file extensions and MIME types.
@@ -102,31 +104,9 @@ function parseAudioTracks(logs) {
   return tracks;
 }
 
-/**
- * Map ISO 639-2 language codes to display names.
- */
-const LANG_NAMES = {
-  eng: 'English', jpn: 'Japanese', spa: 'Spanish', fre: 'French', fra: 'French',
-  deu: 'German', ger: 'German', ita: 'Italian', por: 'Portuguese', zho: 'Chinese',
-  chi: 'Chinese', kor: 'Korean', rus: 'Russian', ara: 'Arabic', hin: 'Hindi',
-  nld: 'Dutch', dut: 'Dutch', pol: 'Polish', swe: 'Swedish', tur: 'Turkish',
-  tha: 'Thai', vie: 'Vietnamese',
-};
-
-/**
- * Map ISO 639-2 (3-letter) to ISO 639-1 (2-letter) codes for the language selector.
- */
-const LANG_CODE_MAP = {
-  eng: 'en', jpn: 'ja', spa: 'es', fre: 'fr', fra: 'fr',
-  deu: 'de', ger: 'de', ita: 'it', por: 'pt', zho: 'zh',
-  chi: 'zh', kor: 'ko', rus: 'ru', ara: 'ar', hin: 'hi',
-  nld: 'nl', dut: 'nl', pol: 'pl', swe: 'sv', tur: 'tr',
-  tha: 'th', vie: 'vi',
-};
-
 function getLanguageLabel(code) {
   if (!code) return null;
-  return LANG_NAMES[code.toLowerCase()] || code.toUpperCase();
+  return ISO639_2_NAMES[code.toLowerCase()] || code.toUpperCase();
 }
 
 /**
@@ -282,7 +262,7 @@ export default function UploadDropzone({ isAuthenticated, onAuthRequired, onAudi
       // Look up track language from current tracks state via ref
       const selectedTrackInfo = tracksRef.current?.find(t => t.audioIndex === audioIndex);
       const trackLang = selectedTrackInfo?.language;
-      const trackLanguage = trackLang ? (LANG_CODE_MAP[trackLang.toLowerCase()] || null) : null;
+      const trackLanguage = trackLang ? (ISO639_2_TO_1[trackLang.toLowerCase()] || null) : null;
 
       // Pass data to parent
       onAudioExtracted({
@@ -393,7 +373,7 @@ export default function UploadDropzone({ isAuthenticated, onAuthRequired, onAudi
 
       // Map 3-letter track language to 2-letter code for the language selector
       const defaultTrackLang = detectedTracks[0]?.language;
-      const trackLanguage = defaultTrackLang ? (LANG_CODE_MAP[defaultTrackLang.toLowerCase()] || null) : null;
+      const trackLanguage = defaultTrackLang ? (ISO639_2_TO_1[defaultTrackLang.toLowerCase()] || null) : null;
 
       // Extract thumbnail
       let thumbUrl = null;

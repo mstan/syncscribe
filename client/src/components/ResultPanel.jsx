@@ -1,44 +1,8 @@
 import { useState, useCallback, useRef } from 'react';
 import api from '../api';
 
-/**
- * Language code to display name mapping.
- */
-const LANGUAGE_NAMES = {
-  auto: 'Auto-detect',
-  en: 'English',
-  ja: 'Japanese',
-  es: 'Spanish',
-  fr: 'French',
-  de: 'German',
-  it: 'Italian',
-  pt: 'Portuguese',
-  zh: 'Chinese',
-  ko: 'Korean',
-  ru: 'Russian',
-  ar: 'Arabic',
-  hi: 'Hindi',
-  nl: 'Dutch',
-  pl: 'Polish',
-  sv: 'Swedish',
-  tr: 'Turkish',
-  th: 'Thai',
-  vi: 'Vietnamese'
-};
-
-/**
- * ISO 639-1 to ISO 639-2 mapping for ffmpeg subtitle metadata.
- */
-const LANG_TO_ISO639_2 = {
-  en: 'eng', ja: 'jpn', es: 'spa', fr: 'fre', de: 'ger',
-  it: 'ita', pt: 'por', zh: 'chi', ko: 'kor', ru: 'rus',
-  ar: 'ara', hi: 'hin', nl: 'dut', pl: 'pol', sv: 'swe',
-  tr: 'tur', th: 'tha', vi: 'vie', auto: 'und'
-};
-
-function getLangName(code) {
-  return LANGUAGE_NAMES[code] || code.toUpperCase();
-}
+import langConfig from '../../../shared/languages.js';
+const { getLangName, getIso3 } = langConfig;
 
 /**
  * Single download button component.
@@ -325,7 +289,7 @@ export default function ResultPanel({ job, onReset, fileName, thumbnailUrl, file
       // offset by the number of existing subtitle streams
       for (let i = 0; i < srtFiles.length; i++) {
         const idx = existingSubCount + i;
-        const iso3 = LANG_TO_ISO639_2[srtFiles[i].lang] || 'und';
+        const iso3 = getIso3(srtFiles[i].lang);
         const langName = getLangName(srtFiles[i].lang);
         args.push(
           `-metadata:s:s:${idx}`, `language=${iso3}`,

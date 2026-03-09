@@ -1,33 +1,6 @@
 import { useMemo } from 'react';
-
-/**
- * Language code to display name mapping.
- */
-const LANGUAGE_NAMES = {
-  auto: 'Auto-detect',
-  en: 'English',
-  ja: 'Japanese',
-  es: 'Spanish',
-  fr: 'French',
-  de: 'German',
-  it: 'Italian',
-  pt: 'Portuguese',
-  zh: 'Chinese',
-  ko: 'Korean',
-  ru: 'Russian',
-  ar: 'Arabic',
-  hi: 'Hindi',
-  nl: 'Dutch',
-  pl: 'Polish',
-  sv: 'Swedish',
-  tr: 'Turkish',
-  th: 'Thai',
-  vi: 'Vietnamese'
-};
-
-function getLangName(code) {
-  return LANGUAGE_NAMES[code] || code.toUpperCase();
-}
+import langConfig from '../../../shared/languages.js';
+const { getLangName } = langConfig;
 
 /**
  * CostBreakdown -- shows the estimated cost before job creation.

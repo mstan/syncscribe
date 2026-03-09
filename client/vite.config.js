@@ -18,6 +18,9 @@ export default defineConfig({
     exclude: ['@ffmpeg/ffmpeg', '@ffmpeg/util']
   },
   build: {
-    outDir: 'dist'
+    outDir: 'dist',
+    commonjsOptions: {
+      include: [/node_modules/, /shared\//]
+    }
   }
 });
