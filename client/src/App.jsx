@@ -133,7 +133,7 @@ function MainPage() {
   const handleAuthSuccess = useCallback(() => {
     setShowAuthGate(false);
     credits.refresh();
-  }, [credits]);
+  }, [credits.refresh]);
 
   /**
    * Determine when to show the result panel.
@@ -145,7 +145,7 @@ function MainPage() {
     if (jobHook.job?.status === 'succeeded' || jobHook.job?.status === 'failed') {
       credits.refresh();
     }
-  }, [jobHook.job?.status, credits]);
+  }, [jobHook.job?.status, credits.refresh]);
 
   return (
     <AppShell
