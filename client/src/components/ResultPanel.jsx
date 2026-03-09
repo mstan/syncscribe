@@ -98,6 +98,33 @@ function DownloadButton({ jobId, language, format, label }) {
 }
 
 /**
+ * Small VTT download link shown beneath the SRT button.
+ */
+function VttLink({ jobId, language }) {
+  const [loading, setLoading] = useState(false);
+
+  const handleDownload = useCallback(async () => {
+    setLoading(true);
+    try {
+      const result = await api.getSubtitleUrl(jobId, language, 'vtt');
+      if (result.url) window.location.href = result.url;
+    } catch {} finally {
+      setLoading(false);
+    }
+  }, [jobId, language]);
+
+  return (
+    <button
+      onClick={handleDownload}
+      disabled={loading}
+      className="mt-1.5 text-xs text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300 transition-colors"
+    >
+      {loading ? 'Downloading...' : 'Also available as .vtt (WebVTT)'}
+    </button>
+  );
+}
+
+/**
  * Spinner icon reusable SVG.
  */
 function Spinner({ className = 'h-5 w-5' }) {
@@ -504,19 +531,14 @@ export default function ResultPanel({ job, onReset, fileName, thumbnailUrl, file
                 </h3>
               )}
 
-              <div className="grid grid-cols-2 gap-3">
+              <div>
                 <DownloadButton
                   jobId={job.id}
                   language={lang}
                   format="srt"
                   label="Download SRT"
                 />
-                <DownloadButton
-                  jobId={job.id}
-                  language={lang}
-                  format="vtt"
-                  label="Download VTT"
-                />
+                <VttLink jobId={job.id} language={lang} />
               </div>
             </div>
           ))}
