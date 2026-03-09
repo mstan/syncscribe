@@ -126,6 +126,7 @@ function MainPage() {
     setAudioData(null);
     setLanguageConfig(null);
     setView(VIEW.UPLOAD);
+    window.history.replaceState(null, '', '/');
   }, [jobHook]);
 
   /**
@@ -147,6 +148,13 @@ function MainPage() {
       credits.refresh();
     }
   }, [jobHook.job?.status, credits.refresh]);
+
+  // Push permalink into address bar when job succeeds
+  useEffect(() => {
+    if (jobHook.job?.status === 'succeeded') {
+      window.history.replaceState(null, '', `/job/${jobHook.job.id}`);
+    }
+  }, [jobHook.job?.status, jobHook.job?.id]);
 
   return (
     <AppShell
