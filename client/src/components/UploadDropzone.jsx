@@ -1,6 +1,4 @@
 import { useState, useRef, useCallback } from 'react';
-import { FFmpeg } from '@ffmpeg/ffmpeg';
-import { fetchFile } from '@ffmpeg/util';
 
 /**
  * Accepted video file extensions and MIME types.
@@ -161,12 +159,14 @@ export default function UploadDropzone({ isAuthenticated, onAuthRequired, onAudi
   const [previewUrls, setPreviewUrls] = useState({});
   const [previewLoading, setPreviewLoading] = useState(null);
   const [playingTrack, setPlayingTrack] = useState(null);
+  const [thumbnailUrl, setThumbnailUrl] = useState(null);
 
   const fileInputRef = useRef(null);
   const ffmpegRef = useRef(null);
   const probeLogsRef = useRef(null);
   const inputNameRef = useRef(null);
   const fileNameRef = useRef('');
+  const originalFileRef = useRef(null);
   const pendingAudioDataRef = useRef(null);
   const audioElRef = useRef(null);
   const tracksRef = useRef(null);
@@ -177,6 +177,7 @@ export default function UploadDropzone({ isAuthenticated, onAuthRequired, onAudi
   const getFFmpeg = useCallback(async () => {
     if (ffmpegRef.current) return ffmpegRef.current;
 
+    const { FFmpeg } = await import('@ffmpeg/ffmpeg');
     const ffmpeg = new FFmpeg();
 
     ffmpeg.on('progress', ({ progress: p }) => {
@@ -243,7 +244,7 @@ export default function UploadDropzone({ isAuthenticated, onAuthRequired, onAudi
       const audioBuffer = outputData.buffer;
 
       // Extract thumbnail before cleanup
-      let thumbnailUrl = null;
+      let thumbUrl = null;
       try {
         const thumbExit = await ffmpeg.exec([
           '-i', inputName,
@@ -255,10 +256,12 @@ export default function UploadDropzone({ isAuthenticated, onAuthRequired, onAudi
         ]);
         if (thumbExit === 0) {
           const thumbData = await ffmpeg.readFile('thumb.jpg');
-          thumbnailUrl = URL.createObjectURL(new Blob([thumbData.buffer], { type: 'image/jpeg' }));
+          thumbUrl = URL.createObjectURL(new Blob([thumbData.buffer], { type: 'image/jpeg' }));
           try { await ffmpeg.deleteFile('thumb.jpg'); } catch {}
         }
       } catch {}
+
+      setThumbnailUrl(thumbUrl);
 
       // Cleanup virtual filesystem
       try {
@@ -289,7 +292,8 @@ export default function UploadDropzone({ isAuthenticated, onAuthRequired, onAudi
         fileName: fileNameRef.current,
         trackIndex: audioIndex,
         trackLanguage,
-        thumbnailUrl
+        thumbnailUrl: thumbUrl,
+        file: originalFileRef.current
       });
 
     } catch (err) {
@@ -322,9 +326,11 @@ export default function UploadDropzone({ isAuthenticated, onAuthRequired, onAudi
     setState(STATE.EXTRACTING);
     setFileName(file.name);
     fileNameRef.current = file.name;
+    originalFileRef.current = file;
     setProgress(0);
     setTracks([]);
     setSelectedTrack(0);
+    setThumbnailUrl(null);
     pendingAudioDataRef.current = null;
 
     try {
@@ -333,6 +339,7 @@ export default function UploadDropzone({ isAuthenticated, onAuthRequired, onAudi
 
       // Write input file to ffmpeg virtual filesystem
       setProgressMessage('Reading video file...');
+      const { fetchFile } = await import('@ffmpeg/util');
       const inputName = 'input' + file.name.substring(file.name.lastIndexOf('.'));
       await ffmpeg.writeFile(inputName, await fetchFile(file));
       inputNameRef.current = inputName;
@@ -389,7 +396,7 @@ export default function UploadDropzone({ isAuthenticated, onAuthRequired, onAudi
       const trackLanguage = defaultTrackLang ? (LANG_CODE_MAP[defaultTrackLang.toLowerCase()] || null) : null;
 
       // Extract thumbnail
-      let thumbnailUrl = null;
+      let thumbUrl = null;
       try {
         const thumbExit = await ffmpeg.exec([
           '-i', inputName,
@@ -401,10 +408,12 @@ export default function UploadDropzone({ isAuthenticated, onAuthRequired, onAudi
         ]);
         if (thumbExit === 0) {
           const thumbData = await ffmpeg.readFile('thumb.jpg');
-          thumbnailUrl = URL.createObjectURL(new Blob([thumbData.buffer], { type: 'image/jpeg' }));
+          thumbUrl = URL.createObjectURL(new Blob([thumbData.buffer], { type: 'image/jpeg' }));
           try { await ffmpeg.deleteFile('thumb.jpg'); } catch {}
         }
       } catch {}
+
+      setThumbnailUrl(thumbUrl);
 
       const audioResult = {
         buffer: audioBuffer,
@@ -413,7 +422,8 @@ export default function UploadDropzone({ isAuthenticated, onAuthRequired, onAudi
         fileName: file.name,
         trackIndex: 0,
         trackLanguage,
-        thumbnailUrl
+        thumbnailUrl: thumbUrl,
+        file
       };
 
       if (detectedTracks.length > 1) {
@@ -511,6 +521,7 @@ export default function UploadDropzone({ isAuthenticated, onAuthRequired, onAudi
     setFileName('');
     setTracks([]);
     setSelectedTrack(0);
+    setThumbnailUrl(null);
   }, [cleanupPreviews]);
 
   /**
@@ -551,6 +562,7 @@ export default function UploadDropzone({ isAuthenticated, onAuthRequired, onAudi
     setTracks([]);
     setSelectedTrack(0);
     setFileName('');
+    setThumbnailUrl(null);
   }, [cleanupPreviews]);
 
   /**
@@ -651,23 +663,23 @@ export default function UploadDropzone({ isAuthenticated, onAuthRequired, onAudi
       <div className="flex flex-col items-center">
         {/* Header */}
         <div className="mb-8 text-center">
-          <h1 className="mb-2 text-2xl font-bold text-gray-900">
+          <h1 className="mb-2 text-2xl font-bold text-gray-900 dark:text-gray-100">
             Extracting Audio
           </h1>
-          <p className="text-sm text-gray-500">
-            Processing <span className="font-medium text-gray-700">{fileName}</span>
+          <p className="text-sm text-gray-500 dark:text-gray-400">
+            Processing <span className="font-medium text-gray-700 dark:text-gray-300">{fileName}</span>
           </p>
         </div>
 
         {/* Progress card */}
-        <div className="w-full max-w-lg rounded-2xl border border-gray-200 bg-white p-8 shadow-sm">
+        <div className="w-full max-w-lg rounded-2xl border border-gray-200 bg-white p-8 shadow-sm dark:border-gray-700 dark:bg-gray-900">
           <div className="mb-4 flex items-center justify-between text-sm">
-            <span className="font-medium text-gray-700">{progressMessage}</span>
-            <span className="tabular-nums text-gray-500">{progress}%</span>
+            <span className="font-medium text-gray-700 dark:text-gray-300">{progressMessage}</span>
+            <span className="tabular-nums text-gray-500 dark:text-gray-400">{progress}%</span>
           </div>
 
           {/* Progress bar */}
-          <div className="mb-6 h-2.5 w-full overflow-hidden rounded-full bg-gray-100">
+          <div className="mb-6 h-2.5 w-full overflow-hidden rounded-full bg-gray-100 dark:bg-gray-800">
             <div
               className="h-full rounded-full bg-brand-600 transition-all duration-300 ease-out"
               style={{ width: `${progress}%` }}
@@ -675,11 +687,11 @@ export default function UploadDropzone({ isAuthenticated, onAuthRequired, onAudi
           </div>
 
           {/* Privacy note */}
-          <div className="flex items-start gap-2 rounded-lg bg-green-50 px-4 py-3">
+          <div className="flex items-start gap-2 rounded-lg bg-green-50 px-4 py-3 dark:bg-green-950">
             <svg className="mt-0.5 h-4 w-4 flex-shrink-0 text-green-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
             </svg>
-            <p className="text-xs text-green-700">
+            <p className="text-xs text-green-700 dark:text-green-400">
               Audio is extracted locally in your browser. Only the audio track is uploaded -- never the full video.
             </p>
           </div>
@@ -695,17 +707,24 @@ export default function UploadDropzone({ isAuthenticated, onAuthRequired, onAudi
       <div className="flex flex-col items-center">
         {/* Header */}
         <div className="mb-8 text-center">
-          <h1 className="mb-2 text-2xl font-bold text-gray-900">
+          <p className="mb-2 text-sm text-gray-500 dark:text-gray-400">
+            <span className="font-medium text-gray-700 dark:text-gray-300">{fileName}</span>
+          </p>
+          {thumbnailUrl && (
+            <img
+              src={thumbnailUrl}
+              alt=""
+              className="mx-auto mb-4 h-32 w-auto rounded-lg shadow-sm"
+            />
+          )}
+          <h1 className="mb-2 text-2xl font-bold text-gray-900 dark:text-gray-100">
             Select Audio Track
           </h1>
-          <p className="text-sm text-gray-500">
-            <span className="font-medium text-gray-700">{fileName}</span>
-          </p>
         </div>
 
         {/* Track selector card */}
-        <div className="w-full max-w-lg rounded-2xl border border-gray-200 bg-white p-8 shadow-sm">
-          <p className="mb-4 text-sm text-gray-600">
+        <div className="w-full max-w-lg rounded-2xl border border-gray-200 bg-white p-8 shadow-sm dark:border-gray-700 dark:bg-gray-900">
+          <p className="mb-4 text-sm text-gray-600 dark:text-gray-400">
             Multiple audio tracks detected. Select which track to transcribe:
           </p>
 
@@ -722,8 +741,8 @@ export default function UploadDropzone({ isAuthenticated, onAuthRequired, onAudi
                   className={`
                     flex items-center rounded-lg border transition-all duration-150
                     ${isSelected
-                      ? 'border-brand-300 bg-brand-50 ring-2 ring-brand-500/20'
-                      : 'border-gray-200 bg-white hover:border-gray-300 hover:bg-gray-50'
+                      ? 'border-brand-300 bg-brand-50 ring-2 ring-brand-500/20 dark:border-brand-700 dark:bg-brand-950'
+                      : 'border-gray-200 bg-white hover:border-gray-300 hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-900 dark:hover:border-gray-600 dark:hover:bg-gray-800'
                     }
                   `}
                 >
@@ -735,7 +754,7 @@ export default function UploadDropzone({ isAuthenticated, onAuthRequired, onAudi
                     {/* Radio indicator */}
                     <div className={`
                       flex h-4 w-4 flex-shrink-0 items-center justify-center rounded-full border-2
-                      ${isSelected ? 'border-brand-600' : 'border-gray-300'}
+                      ${isSelected ? 'border-brand-600' : 'border-gray-300 dark:border-gray-600'}
                     `}>
                       {isSelected && (
                         <div className="h-2 w-2 rounded-full bg-brand-600" />
@@ -744,15 +763,15 @@ export default function UploadDropzone({ isAuthenticated, onAuthRequired, onAudi
 
                     {/* Track info */}
                     <div>
-                      <span className="font-medium text-gray-900">
+                      <span className="font-medium text-gray-900 dark:text-gray-100">
                         Track {track.audioIndex + 1}
                       </span>
                       {langLabel && (
-                        <span className="ml-2 text-sm text-gray-700">
+                        <span className="ml-2 text-sm text-gray-700 dark:text-gray-300">
                           {langLabel}
                         </span>
                       )}
-                      <span className="ml-2 text-xs text-gray-400">
+                      <span className="ml-2 text-xs text-gray-400 dark:text-gray-500">
                         {track.codec.toUpperCase()}
                         {track.channels && `, ${track.channels}`}
                         {track.sampleRate && `, ${track.sampleRate} Hz`}
@@ -764,7 +783,7 @@ export default function UploadDropzone({ isAuthenticated, onAuthRequired, onAudi
                   <button
                     onClick={(e) => { e.stopPropagation(); handlePreview(track.audioIndex); }}
                     disabled={isLoading}
-                    className="mr-3 flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-600 disabled:opacity-50"
+                    className="mr-3 flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-600 disabled:opacity-50 dark:text-gray-500 dark:hover:bg-gray-800 dark:hover:text-gray-300"
                     title={isPlaying ? 'Pause preview' : 'Preview track'}
                   >
                     {isLoading ? (
@@ -811,14 +830,14 @@ export default function UploadDropzone({ isAuthenticated, onAuthRequired, onAudi
     return (
       <div className="flex flex-col items-center">
         <div className="mb-8 text-center">
-          <h1 className="mb-2 text-2xl font-bold text-gray-900">
+          <h1 className="mb-2 text-2xl font-bold text-gray-900 dark:text-gray-100">
             Extraction Failed
           </h1>
         </div>
 
-        <div className="w-full max-w-lg rounded-2xl border border-red-200 bg-white p-8 shadow-sm">
+        <div className="w-full max-w-lg rounded-2xl border border-red-200 bg-white p-8 shadow-sm dark:border-red-900 dark:bg-gray-900">
           <div className="mb-6 flex items-start gap-3">
-            <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-red-100">
+            <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-red-100 dark:bg-red-950">
               <svg className="h-5 w-5 text-red-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <circle cx="12" cy="12" r="10" />
                 <line x1="15" y1="9" x2="9" y2="15" />
@@ -826,10 +845,10 @@ export default function UploadDropzone({ isAuthenticated, onAuthRequired, onAudi
               </svg>
             </div>
             <div>
-              <p className="font-medium text-gray-900">
+              <p className="font-medium text-gray-900 dark:text-gray-100">
                 {fileName}
               </p>
-              <p className="mt-1 text-sm text-red-600">
+              <p className="mt-1 text-sm text-red-600 dark:text-red-400">
                 {error}
               </p>
             </div>
@@ -852,10 +871,10 @@ export default function UploadDropzone({ isAuthenticated, onAuthRequired, onAudi
     <div className="flex flex-col items-center">
       {/* Hero text */}
       <div className="mb-8 text-center">
-        <h1 className="mb-3 text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">
+        <h1 className="mb-3 text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl dark:text-gray-100">
           AI Subtitle Generator
         </h1>
-        <p className="mx-auto max-w-md text-base text-gray-500">
+        <p className="mx-auto max-w-md text-base text-gray-500 dark:text-gray-400">
           Generate accurate subtitles for your media in minutes.
           Upload a video, get SRT and VTT files back.
         </p>
@@ -871,19 +890,20 @@ export default function UploadDropzone({ isAuthenticated, onAuthRequired, onAudi
           group w-full max-w-lg cursor-pointer rounded-2xl border-2 border-dashed
           bg-white p-12 text-center shadow-sm
           transition-all duration-200
+          dark:bg-gray-900
           ${dragOver
-            ? 'border-brand-500 bg-brand-50 shadow-md scale-[1.01]'
-            : 'border-gray-300 hover:border-brand-400 hover:bg-gray-50 hover:shadow-md'
+            ? 'border-brand-500 bg-brand-50 shadow-md scale-[1.01] dark:bg-brand-950'
+            : 'border-gray-300 hover:border-brand-400 hover:bg-gray-50 hover:shadow-md dark:border-gray-600 dark:hover:border-brand-400 dark:hover:bg-gray-800'
           }
         `}
       >
         {/* Upload icon */}
         <div className={`
           mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-2xl transition-colors duration-200
-          ${dragOver ? 'bg-brand-100' : 'bg-gray-100 group-hover:bg-brand-50'}
+          ${dragOver ? 'bg-brand-100 dark:bg-brand-950' : 'bg-gray-100 group-hover:bg-brand-50 dark:bg-gray-800 dark:group-hover:bg-brand-950'}
         `}>
           <svg
-            className={`h-8 w-8 transition-colors duration-200 ${dragOver ? 'text-brand-600' : 'text-gray-400 group-hover:text-brand-500'}`}
+            className={`h-8 w-8 transition-colors duration-200 ${dragOver ? 'text-brand-600' : 'text-gray-400 group-hover:text-brand-500 dark:text-gray-500'}`}
             viewBox="0 0 24 24"
             fill="none"
             stroke="currentColor"
@@ -897,15 +917,15 @@ export default function UploadDropzone({ isAuthenticated, onAuthRequired, onAudi
           </svg>
         </div>
 
-        <p className="mb-2 text-base font-semibold text-gray-700">
+        <p className="mb-2 text-base font-semibold text-gray-700 dark:text-gray-300">
           {dragOver ? 'Drop your video file here' : 'Drop a video file or click to browse'}
         </p>
-        <p className="mb-4 text-sm text-gray-400">
+        <p className="mb-4 text-sm text-gray-400 dark:text-gray-500">
           Supports MKV, MP4, AVI, MOV, WebM, and more
         </p>
 
         {/* Privacy badge */}
-        <div className="inline-flex items-center gap-1.5 rounded-full bg-green-50 px-3 py-1.5 text-xs font-medium text-green-700">
+        <div className="inline-flex items-center gap-1.5 rounded-full bg-green-50 px-3 py-1.5 text-xs font-medium text-green-700 dark:bg-green-950 dark:text-green-400">
           <svg className="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
           </svg>
@@ -923,7 +943,7 @@ export default function UploadDropzone({ isAuthenticated, onAuthRequired, onAudi
       />
 
       {/* Desktop note */}
-      <p className="mt-4 text-xs text-gray-400">
+      <p className="mt-4 text-xs text-gray-400 dark:text-gray-500">
         Best on desktop. Large files may take a moment to process.
       </p>
     </div>

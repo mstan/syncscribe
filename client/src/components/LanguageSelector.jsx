@@ -89,25 +89,25 @@ export default function LanguageSelector({ fileName, detectedLanguage, thumbnail
             className="mx-auto mb-4 h-32 w-auto rounded-lg shadow-sm"
           />
         )}
-        <h1 className="mb-2 text-2xl font-bold text-gray-900">
+        <h1 className="mb-2 text-2xl font-bold text-gray-900 dark:text-gray-100">
           Language Settings
         </h1>
-        <p className="text-sm text-gray-500">
-          <span className="font-medium text-gray-700">{fileName}</span>
+        <p className="text-sm text-gray-500 dark:text-gray-400">
+          <span className="font-medium text-gray-700 dark:text-gray-300">{fileName}</span>
         </p>
       </div>
 
       {/* Settings card */}
-      <div className="w-full max-w-lg rounded-2xl border border-gray-200 bg-white p-8 shadow-sm">
+      <div className="w-full max-w-lg rounded-2xl border border-gray-200 bg-white p-8 shadow-sm dark:border-gray-700 dark:bg-gray-900">
         {/* Target language */}
         <div className="mb-6">
-          <label className="mb-2 block text-sm font-semibold text-gray-700">
+          <label className="mb-2 block text-sm font-semibold text-gray-700 dark:text-gray-300">
             Target Language
           </label>
-          <p className="mb-3 text-xs text-gray-500">
+          <p className="mb-3 text-xs text-gray-500 dark:text-gray-400">
             The spoken language in the audio. Subtitles will be generated in this language.
             {detectedLanguage && primaryLanguage === detectedLanguage && (
-              <span className="ml-1 text-brand-600">(detected from audio track)</span>
+              <span className="ml-1 text-brand-600 dark:text-brand-400">(detected from audio track)</span>
             )}
           </p>
           <select
@@ -117,7 +117,7 @@ export default function LanguageSelector({ fileName, detectedLanguage, thumbnail
               // Remove from additional if user switches primary to a lang that was additional
               setAdditionalLanguages(prev => prev.filter(l => l !== e.target.value));
             }}
-            className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm text-gray-900 shadow-sm transition-colors focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/20"
+            className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm text-gray-900 shadow-sm transition-colors focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/20 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100"
           >
             {LANGUAGES.map(lang => (
               <option key={lang.code} value={lang.code}>
@@ -128,50 +128,50 @@ export default function LanguageSelector({ fileName, detectedLanguage, thumbnail
         </div>
 
         {/* Divider */}
-        <div className="mb-6 border-t border-gray-100" />
+        <div className="mb-6 border-t border-gray-100 dark:border-gray-800" />
 
         {/* Additional languages toggle */}
         {!showAdditional ? (
           <div className="mb-6">
             <button
               onClick={() => setShowAdditional(true)}
-              className="flex items-center gap-2 text-sm font-medium text-brand-600 transition-colors hover:text-brand-700"
+              className="flex items-center gap-2 text-sm font-medium text-brand-600 transition-colors hover:text-brand-700 dark:text-brand-400 dark:hover:text-brand-300"
             >
               <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <line x1="12" y1="5" x2="12" y2="19" />
                 <line x1="5" y1="12" x2="19" y2="12" />
               </svg>
-              Add translation languages
+              Add translated subtitles in other languages
             </button>
-            <p className="mt-2 text-xs text-gray-400">
-              Get subtitles in additional languages at half the credit cost per language.
+            <p className="mt-2 text-xs text-gray-400 dark:text-gray-500">
+              In addition to subtitles in the target language above, get translated subtitles at half credit cost per language.
             </p>
           </div>
         ) : (
           <div className="mb-6">
             <div className="mb-2 flex items-center justify-between">
-              <label className="text-sm font-semibold text-gray-700">
+              <label className="text-sm font-semibold text-gray-700 dark:text-gray-300">
                 Additional Languages
               </label>
               <button
                 onClick={() => { setShowAdditional(false); setAdditionalLanguages([]); }}
-                className="text-xs text-gray-400 transition-colors hover:text-gray-600"
+                className="text-xs text-gray-400 transition-colors hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300"
               >
                 Remove
               </button>
             </div>
 
             {/* Info box */}
-            <div className="mb-4 flex items-start gap-2.5 rounded-lg bg-brand-50 px-4 py-3">
+            <div className="mb-4 flex items-start gap-2.5 rounded-lg bg-brand-50 px-4 py-3 dark:bg-brand-950">
               <svg className="mt-0.5 h-4 w-4 flex-shrink-0 text-brand-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <circle cx="12" cy="12" r="10" />
                 <line x1="12" y1="16" x2="12" y2="12" />
                 <line x1="12" y1="8" x2="12.01" y2="8" />
               </svg>
-              <p className="text-xs text-brand-700">
-                In addition to subtitles for the target language above, you can generate
-                translated subtitles in other languages. Each additional language costs
-                <span className="font-semibold"> 50% fewer credits</span> than the primary.
+              <p className="text-xs text-brand-700 dark:text-brand-300">
+                You will always receive subtitles in the target language above. These
+                additional translations are generated on top of that, each at
+                <span className="font-semibold"> half the credit cost</span> of the primary.
               </p>
             </div>
 
@@ -186,8 +186,8 @@ export default function LanguageSelector({ fileName, detectedLanguage, thumbnail
                     className={`
                       rounded-lg border px-3 py-1.5 text-sm font-medium transition-all duration-150
                       ${isSelected
-                        ? 'border-brand-300 bg-brand-50 text-brand-700 shadow-sm'
-                        : 'border-gray-200 bg-white text-gray-600 hover:border-gray-300 hover:bg-gray-50'
+                        ? 'border-brand-300 bg-brand-50 text-brand-700 shadow-sm dark:border-brand-700 dark:bg-brand-950 dark:text-brand-300'
+                        : 'border-gray-200 bg-white text-gray-600 hover:border-gray-300 hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-400 dark:hover:border-gray-600 dark:hover:bg-gray-800'
                       }
                     `}
                   >
@@ -205,7 +205,7 @@ export default function LanguageSelector({ fileName, detectedLanguage, thumbnail
             {additionalLanguages.length > 0 && (
               <button
                 onClick={() => setAdditionalLanguages([])}
-                className="mt-3 text-xs text-gray-400 transition-colors hover:text-gray-600"
+                className="mt-3 text-xs text-gray-400 transition-colors hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300"
               >
                 Clear all
               </button>

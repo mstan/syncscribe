@@ -13,6 +13,7 @@
     "@ffmpeg/ffmpeg": "^0.12.10",
     "@ffmpeg/util": "^0.12.1",
     "@react-oauth/google": "^0.12.1",
+    "jszip": "^3.10.1",
     "react": "^18.3.0",
     "react-dom": "^18.3.0",
     "react-router-dom": "^6.23.0"

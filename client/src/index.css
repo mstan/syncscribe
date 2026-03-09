@@ -4,15 +4,22 @@
 
 @layer base {
   body {
-    @apply bg-gray-50 font-sans text-gray-900 antialiased;
+    @apply bg-gray-50 font-sans text-gray-900 antialiased
+           dark:bg-gray-950 dark:text-gray-100;
     background-image:
       radial-gradient(at 20% 0%, rgba(99, 102, 241, 0.04) 0%, transparent 50%),
       radial-gradient(at 80% 100%, rgba(99, 102, 241, 0.03) 0%, transparent 50%);
     min-height: 100vh;
   }
 
+  .dark body {
+    background-image:
+      radial-gradient(at 20% 0%, rgba(99, 102, 241, 0.08) 0%, transparent 50%),
+      radial-gradient(at 80% 100%, rgba(99, 102, 241, 0.06) 0%, transparent 50%);
+  }
+
   ::selection {
-    @apply bg-brand-200 text-brand-900;
+    @apply bg-brand-200 text-brand-900 dark:bg-brand-800 dark:text-brand-100;
   }
 }
 
@@ -30,13 +37,16 @@
            text-sm font-semibold text-gray-700 shadow-sm transition-all duration-150
            hover:bg-gray-50 hover:shadow-md
            focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-400
-           disabled:cursor-not-allowed disabled:opacity-50;
+           disabled:cursor-not-allowed disabled:opacity-50
+           dark:border-gray-700 dark:bg-gray-800 dark:text-gray-200
+           dark:hover:bg-gray-700;
   }
 
   .btn-ghost {
     @apply inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2
            text-sm font-medium text-gray-600 transition-colors duration-150
-           hover:bg-gray-100 hover:text-gray-900;
+           hover:bg-gray-100 hover:text-gray-900
+           dark:text-gray-300 dark:hover:bg-gray-800 dark:hover:text-gray-100;
   }
 }
 

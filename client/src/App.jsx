@@ -206,6 +206,7 @@ function MainPage() {
             onReset={handleReset}
             fileName={audioData?.fileName}
             thumbnailUrl={audioData?.thumbnailUrl}
+            file={audioData?.file}
           />
         )}
       </div>

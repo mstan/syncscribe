@@ -37,7 +37,7 @@ function Spinner() {
           stroke="currentColor"
           strokeWidth="3"
           strokeDasharray="120 60"
-          className="text-brand-200"
+          className="text-brand-200 dark:text-brand-800"
         />
       </svg>
       {/* Inner ring */}
@@ -88,19 +88,19 @@ export default function JobProgress({ job, error, thumbnailUrl, onRetry }) {
             className="mx-auto mb-4 h-32 w-auto rounded-lg shadow-sm"
           />
         )}
-        <h1 className="mb-2 text-2xl font-bold text-gray-900">
+        <h1 className="mb-2 text-2xl font-bold text-gray-900 dark:text-gray-100">
           {isFailed ? 'Something Went Wrong' : 'Processing Your Video'}
         </h1>
       </div>
 
       {/* Status card */}
-      <div className={`w-full max-w-lg rounded-2xl border bg-white p-8 shadow-sm ${
-        isFailed ? 'border-red-200' : 'border-gray-200'
+      <div className={`w-full max-w-lg rounded-2xl border bg-white p-8 shadow-sm dark:bg-gray-900 ${
+        isFailed ? 'border-red-200 dark:border-red-900' : 'border-gray-200 dark:border-gray-700'
       }`}>
         <div className="flex flex-col items-center text-center">
           {/* Animated indicator */}
           {isFailed ? (
-            <div className="mb-5 flex h-16 w-16 items-center justify-center rounded-full bg-red-100">
+            <div className="mb-5 flex h-16 w-16 items-center justify-center rounded-full bg-red-100 dark:bg-red-950">
               <svg className="h-8 w-8 text-red-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <circle cx="12" cy="12" r="10" />
                 <line x1="15" y1="9" x2="9" y2="15" />
@@ -119,18 +119,18 @@ export default function JobProgress({ job, error, thumbnailUrl, onRetry }) {
 
           {/* Status label */}
           <h2 className={`mb-2 text-lg font-semibold ${
-            isFailed ? 'text-red-700' : 'text-gray-900'
+            isFailed ? 'text-red-700 dark:text-red-400' : 'text-gray-900 dark:text-gray-100'
           }`}>
             {config.label}
           </h2>
 
-          <p className="mb-6 text-sm text-gray-500">
+          <p className="mb-6 text-sm text-gray-500 dark:text-gray-400">
             {config.description}
           </p>
 
           {/* Error details */}
           {isFailed && (error || job?.error_message) && (
-            <div className="mb-6 w-full rounded-lg bg-red-50 px-4 py-3 text-left text-sm text-red-700">
+            <div className="mb-6 w-full rounded-lg bg-red-50 px-4 py-3 text-left text-sm text-red-700 dark:bg-red-950 dark:text-red-400">
               {error || job.error_message}
             </div>
           )}
@@ -152,8 +152,8 @@ export default function JobProgress({ job, error, thumbnailUrl, onRetry }) {
                           ${isComplete
                             ? 'bg-brand-600 text-white'
                             : isCurrent
-                              ? 'bg-brand-100 text-brand-700 ring-2 ring-brand-600'
-                              : 'bg-gray-100 text-gray-400'
+                              ? 'bg-brand-100 text-brand-700 ring-2 ring-brand-600 dark:bg-brand-950 dark:text-brand-300'
+                              : 'bg-gray-100 text-gray-400 dark:bg-gray-800 dark:text-gray-500'
                           }
                         `}>
                           {isComplete ? (
@@ -165,14 +165,14 @@ export default function JobProgress({ job, error, thumbnailUrl, onRetry }) {
                           )}
                         </div>
                         <span className={`mt-1 text-xs ${
-                          isComplete || isCurrent ? 'text-gray-700 font-medium' : 'text-gray-400'
+                          isComplete || isCurrent ? 'text-gray-700 font-medium dark:text-gray-300' : 'text-gray-400 dark:text-gray-500'
                         }`}>
                           {step}
                         </span>
                       </div>
                       {i < 3 && (
                         <div className={`mx-1 h-0.5 flex-1 rounded-full ${
-                          isComplete ? 'bg-brand-600' : 'bg-gray-200'
+                          isComplete ? 'bg-brand-600' : 'bg-gray-200 dark:bg-gray-700'
                         }`} />
                       )}
                     </div>
@@ -191,7 +191,7 @@ export default function JobProgress({ job, error, thumbnailUrl, onRetry }) {
 
           {/* Privacy note (processing) */}
           {!isFailed && (
-            <div className="w-full rounded-lg bg-gray-50 px-4 py-3 text-xs text-gray-500">
+            <div className="w-full rounded-lg bg-gray-50 px-4 py-3 text-xs text-gray-500 dark:bg-gray-800 dark:text-gray-400">
               Your audio is being processed securely. You can leave this page open -- we will show your results when ready.
             </div>
           )}

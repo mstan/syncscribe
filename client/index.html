@@ -6,6 +6,13 @@
     <meta name="description" content="Generate accurate subtitles for your media in minutes. Upload a video, get SRT/VTT files back. Fast, private, credit-based." />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <title>SyncScribe - AI Subtitle Generator</title>
+    <script>
+      (function() {
+        var s = localStorage.getItem('theme');
+        if (s === 'dark' || (!s && matchMedia('(prefers-color-scheme: dark)').matches))
+          document.documentElement.classList.add('dark');
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>

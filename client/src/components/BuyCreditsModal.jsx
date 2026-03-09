@@ -96,11 +96,11 @@ export default function BuyCreditsModal({ onClose }) {
       />
 
       {/* Modal */}
-      <div className="relative w-full max-w-2xl rounded-2xl bg-white p-8 shadow-2xl">
+      <div className="relative w-full max-w-2xl rounded-2xl bg-white p-8 shadow-2xl dark:bg-gray-900 dark:ring-1 dark:ring-gray-700">
         {/* Close button */}
         <button
           onClick={onClose}
-          className="absolute right-4 top-4 rounded-lg p-1 text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-600"
+          className="absolute right-4 top-4 rounded-lg p-1 text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-600 dark:text-gray-500 dark:hover:bg-gray-800 dark:hover:text-gray-300"
         >
           <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <line x1="18" y1="6" x2="6" y2="18" />
@@ -110,17 +110,17 @@ export default function BuyCreditsModal({ onClose }) {
 
         {/* Header */}
         <div className="mb-8 text-center">
-          <h2 className="mb-2 text-xl font-bold text-gray-900">
+          <h2 className="mb-2 text-xl font-bold text-gray-900 dark:text-gray-100">
             Buy Credits
           </h2>
-          <p className="text-sm text-gray-500">
+          <p className="text-sm text-gray-500 dark:text-gray-400">
             Credits are based on minutes of audio processed. Choose a pack below.
           </p>
         </div>
 
         {/* Error */}
         {error && (
-          <div className="mb-6 rounded-lg bg-red-50 px-4 py-3 text-sm text-red-700">
+          <div className="mb-6 rounded-lg bg-red-50 px-4 py-3 text-sm text-red-700 dark:bg-red-950 dark:text-red-400">
             {error}
           </div>
         )}
@@ -148,8 +148,8 @@ export default function BuyCreditsModal({ onClose }) {
                     relative flex flex-col items-center rounded-xl border-2 p-6 text-center
                     transition-all duration-200
                     ${isBestValue
-                      ? 'border-brand-500 bg-brand-50/50 shadow-md hover:shadow-lg'
-                      : 'border-gray-200 bg-white hover:border-gray-300 hover:shadow-md'
+                      ? 'border-brand-500 bg-brand-50/50 shadow-md hover:shadow-lg dark:bg-brand-950/50'
+                      : 'border-gray-200 bg-white hover:border-gray-300 hover:shadow-md dark:border-gray-700 dark:bg-gray-900 dark:hover:border-gray-600'
                     }
                     ${purchasing !== null && !isLoading ? 'opacity-50' : ''}
                     disabled:cursor-not-allowed
@@ -165,20 +165,20 @@ export default function BuyCreditsModal({ onClose }) {
                   )}
 
                   {/* Pack name */}
-                  <h3 className="mb-1 text-base font-semibold text-gray-900">
+                  <h3 className="mb-1 text-base font-semibold text-gray-900 dark:text-gray-100">
                     {pack.name}
                   </h3>
 
                   {/* Price */}
                   <div className="mb-3">
-                    <span className="text-3xl font-bold text-gray-900">
+                    <span className="text-3xl font-bold text-gray-900 dark:text-gray-100">
                       {formatPrice(pack.price_cents)}
                     </span>
                   </div>
 
                   {/* Minutes */}
-                  <div className="mb-3 flex items-center gap-1.5 text-sm font-medium text-gray-700">
-                    <svg className="h-4 w-4 text-gray-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <div className="mb-3 flex items-center gap-1.5 text-sm font-medium text-gray-700 dark:text-gray-300">
+                    <svg className="h-4 w-4 text-gray-400 dark:text-gray-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                       <circle cx="12" cy="12" r="10" />
                       <polyline points="12 6 12 12 16 14" />
                     </svg>
@@ -186,7 +186,7 @@ export default function BuyCreditsModal({ onClose }) {
                   </div>
 
                   {/* Price per minute */}
-                  <p className="text-xs text-gray-400">
+                  <p className="text-xs text-gray-400 dark:text-gray-500">
                     {pricePerMinute(pack.price_cents, pack.minutes_amount)}&cent; / min
                   </p>
 
@@ -206,7 +206,7 @@ export default function BuyCreditsModal({ onClose }) {
         )}
 
         {/* Footer note */}
-        <p className="mt-6 text-center text-xs text-gray-400">
+        <p className="mt-6 text-center text-xs text-gray-400 dark:text-gray-500">
           Payments are processed securely through Stripe. Credits never expire.
         </p>
       </div>

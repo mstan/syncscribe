@@ -71,29 +71,29 @@ export default function CostBreakdown({
             className="mx-auto mb-4 h-32 w-auto rounded-lg shadow-sm"
           />
         )}
-        <h1 className="mb-2 text-2xl font-bold text-gray-900">
+        <h1 className="mb-2 text-2xl font-bold text-gray-900 dark:text-gray-100">
           Cost Estimate
         </h1>
-        <p className="text-sm text-gray-500">
+        <p className="text-sm text-gray-500 dark:text-gray-400">
           Review the credit cost before generating subtitles.
         </p>
       </div>
 
       {/* Breakdown card */}
-      <div className="w-full max-w-lg rounded-2xl border border-gray-200 bg-white p-8 shadow-sm">
+      <div className="w-full max-w-lg rounded-2xl border border-gray-200 bg-white p-8 shadow-sm dark:border-gray-700 dark:bg-gray-900">
         {/* Line items */}
         <div className="mb-6 space-y-3">
           {/* Primary language */}
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <span className="text-sm text-gray-700">
+              <span className="text-sm text-gray-700 dark:text-gray-300">
                 {getLangName(language)}
               </span>
-              <span className="rounded-full bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-500">
+              <span className="rounded-full bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-500 dark:bg-gray-800 dark:text-gray-400">
                 primary
               </span>
             </div>
-            <span className="text-sm font-semibold tabular-nums text-gray-900">
+            <span className="text-sm font-semibold tabular-nums text-gray-900 dark:text-gray-100">
               {breakdown.baseMinutes} min
             </span>
           </div>
@@ -102,24 +102,24 @@ export default function CostBreakdown({
           {additionalLanguages?.map(lang => (
             <div key={lang} className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <span className="text-sm text-gray-700">
+                <span className="text-sm text-gray-700 dark:text-gray-300">
                   {getLangName(lang)}
                 </span>
-                <span className="rounded-full bg-green-100 px-2 py-0.5 text-xs font-medium text-green-700">
+                <span className="rounded-full bg-green-100 px-2 py-0.5 text-xs font-medium text-green-700 dark:bg-green-950 dark:text-green-400">
                   half rate
                 </span>
               </div>
-              <span className="text-sm font-semibold tabular-nums text-gray-900">
+              <span className="text-sm font-semibold tabular-nums text-gray-900 dark:text-gray-100">
                 {breakdown.translationCost} min
               </span>
             </div>
           ))}
 
           {/* Divider */}
-          <div className="border-t border-gray-200 pt-3">
+          <div className="border-t border-gray-200 pt-3 dark:border-gray-700">
             <div className="flex items-center justify-between">
-              <span className="text-sm font-semibold text-gray-900">Total</span>
-              <span className="text-lg font-bold tabular-nums text-brand-600">
+              <span className="text-sm font-semibold text-gray-900 dark:text-gray-100">Total</span>
+              <span className="text-lg font-bold tabular-nums text-brand-600 dark:text-brand-400">
                 {breakdown.totalMinutes} min
               </span>
             </div>
@@ -129,12 +129,12 @@ export default function CostBreakdown({
         {/* Balance info */}
         <div className={`mb-6 rounded-lg px-4 py-3 ${
           hasSufficientCredits
-            ? 'bg-gray-50'
-            : 'bg-amber-50 border border-amber-200'
+            ? 'bg-gray-50 dark:bg-gray-800'
+            : 'bg-amber-50 border border-amber-200 dark:bg-amber-950 dark:border-amber-800'
         }`}>
           {balance !== null ? (
             <div className="flex items-center justify-between text-sm">
-              <span className={hasSufficientCredits ? 'text-gray-600' : 'text-amber-700'}>
+              <span className={hasSufficientCredits ? 'text-gray-600 dark:text-gray-400' : 'text-amber-700 dark:text-amber-400'}>
                 {hasSufficientCredits
                   ? 'Your balance'
                   : 'Insufficient credits'
@@ -142,26 +142,26 @@ export default function CostBreakdown({
               </span>
               <div className="text-right">
                 <span className={`font-semibold tabular-nums ${
-                  hasSufficientCredits ? 'text-gray-900' : 'text-amber-700'
+                  hasSufficientCredits ? 'text-gray-900 dark:text-gray-100' : 'text-amber-700 dark:text-amber-400'
                 }`}>
                   {balance} min
                 </span>
                 {hasSufficientCredits && balanceAfter !== null && (
-                  <span className="ml-2 text-xs text-gray-400">
+                  <span className="ml-2 text-xs text-gray-400 dark:text-gray-500">
                     ({balanceAfter} min remaining after)
                   </span>
                 )}
               </div>
             </div>
           ) : (
-            <div className="text-sm text-gray-500">Loading balance...</div>
+            <div className="text-sm text-gray-500 dark:text-gray-400">Loading balance...</div>
           )}
         </div>
 
         {/* Insufficient credits warning */}
         {!hasSufficientCredits && balance !== null && (
           <div className="mb-6">
-            <p className="mb-3 text-sm text-amber-700">
+            <p className="mb-3 text-sm text-amber-700 dark:text-amber-400">
               You need <span className="font-semibold">{breakdown.totalMinutes - balance} more minutes</span> to generate these subtitles.
             </p>
             <button
