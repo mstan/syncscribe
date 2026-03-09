@@ -175,6 +175,25 @@ class Api {
   async getSubtitleUrl(jobId, language, format) {
     return this._request('GET', `/api/jobs/${jobId}/subtitles/${language}/${format}`);
   }
+
+  /**
+   * Get subtitle file content as text (proxied through our server, no CORS issues).
+   * @param {string} jobId
+   * @param {string} language - language code (e.g. 'en')
+   * @param {string} format - 'srt' or 'vtt'
+   * @returns {Promise<string>} Subtitle text content
+   */
+  async getSubtitleContent(jobId, language, format) {
+    const res = await fetch(`${API_BASE}/api/jobs/${jobId}/subtitles/${language}/${format}/content`, {
+      headers: this._headers()
+    });
+    if (!res.ok) {
+      const err = new Error(`Failed to fetch subtitle content: ${res.status}`);
+      err.status = res.status;
+      throw err;
+    }
+    return res.text();
+  }
 }
 
 const api = new Api();

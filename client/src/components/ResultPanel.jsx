@@ -110,13 +110,10 @@ function Spinner({ className = 'h-5 w-5' }) {
 }
 
 /**
- * Fetch subtitle text content from a presigned URL.
+ * Fetch subtitle text content via server proxy (avoids R2 CORS issues).
  */
 async function fetchSubtitleText(jobId, language, format) {
-  const result = await api.getSubtitleUrl(jobId, language, format);
-  const res = await fetch(result.url);
-  if (!res.ok) throw new Error(`Failed to fetch ${language}.${format}`);
-  return res.text();
+  return api.getSubtitleContent(jobId, language, format);
 }
 
 /**
@@ -429,27 +426,27 @@ export default function ResultPanel({ job, onReset, fileName, thumbnailUrl, file
               <button
                 onClick={handleDownloadAll}
                 disabled={downloadAllLoading}
-                className="btn-secondary justify-center gap-2 !py-3"
+                className="btn-primary justify-center gap-2.5 !py-3.5 text-base"
               >
                 {downloadAllLoading ? (
-                  <Spinner className="h-4 w-4 text-gray-400" />
+                  <Spinner className="h-5 w-5 text-white/60" />
                 ) : (
-                  <svg className="h-4 w-4 text-gray-500 dark:text-gray-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                     <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
                     <polyline points="7 10 12 15 17 10" />
                     <line x1="12" y1="15" x2="12" y2="3" />
                   </svg>
                 )}
-                <span className="text-sm font-medium">Download All</span>
+                <span className="font-semibold">Download All</span>
               </button>
 
               {/* Embed in Video */}
               <button
                 onClick={() => handleEmbed()}
                 disabled={embedState === 'loading' || embedState === 'embedding'}
-                className="btn-secondary justify-center gap-2 !py-3"
+                className="justify-center gap-2.5 !py-3.5 text-base inline-flex items-center rounded-lg border-0 font-semibold transition-colors bg-green-600 text-white hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                <svg className="h-4 w-4 text-gray-500 dark:text-gray-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18" />
                   <line x1="7" y1="2" x2="7" y2="22" />
                   <line x1="17" y1="2" x2="17" y2="22" />
@@ -459,9 +456,7 @@ export default function ResultPanel({ job, onReset, fileName, thumbnailUrl, file
                   <line x1="17" y1="7" x2="22" y2="7" />
                   <line x1="17" y1="17" x2="22" y2="17" />
                 </svg>
-                <span className="text-sm font-medium">
-                  {file ? 'Embed in Video' : 'Embed in Video...'}
-                </span>
+                <span>{file ? 'Embed in Video' : 'Embed in Video...'}</span>
               </button>
             </div>
           )}
@@ -471,7 +466,7 @@ export default function ResultPanel({ job, onReset, fileName, thumbnailUrl, file
           )}
 
           {!file && embedState === 'idle' && (
-            <p className="mt-2 text-xs text-gray-400 dark:text-gray-500">
+            <p className="mt-2 text-center text-xs text-gray-400 dark:text-gray-500">
               Embed will prompt you to re-select your video file.
             </p>
           )}
