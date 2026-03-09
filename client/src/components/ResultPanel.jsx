@@ -302,7 +302,7 @@ export default function ResultPanel({ job, onReset, fileName, thumbnailUrl, file
         const langName = getLangName(srtFiles[i].lang);
         args.push(
           `-metadata:s:s:${idx}`, `language=${iso3}`,
-          `-metadata:s:s:${idx}`, `title=${langName} (SyncScribe)`
+          `-metadata:s:s:${idx}`, `title=${langName}`
         );
       }
 
