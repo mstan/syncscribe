@@ -11,6 +11,7 @@ import JobProgress from './components/JobProgress';
 import ResultPanel from './components/ResultPanel';
 import AuthGate from './components/AuthGate';
 import BuyCreditsModal from './components/BuyCreditsModal';
+import SharedResultPage from './components/SharedResultPage';
 
 /**
  * Application view states for the main workflow.
@@ -236,6 +237,7 @@ function MainPage() {
 export default function App() {
   return (
     <Routes>
+      <Route path="/job/:jobId" element={<SharedResultPage />} />
       <Route path="*" element={<MainPage />} />
     </Routes>
   );

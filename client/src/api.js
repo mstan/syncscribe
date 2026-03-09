@@ -194,6 +194,25 @@ class Api {
     }
     return res.text();
   }
+  // ── Shared (public, no auth) ─────────────────────────────────────
+
+  async getSharedJob(jobId) {
+    return this._request('GET', `/api/shared/jobs/${jobId}`);
+  }
+
+  async getSharedSubtitleUrl(jobId, language, format) {
+    return this._request('GET', `/api/shared/jobs/${jobId}/subtitles/${language}/${format}`);
+  }
+
+  async getSharedSubtitleContent(jobId, language, format) {
+    const res = await fetch(`${API_BASE}/api/shared/jobs/${jobId}/subtitles/${language}/${format}/content`);
+    if (!res.ok) {
+      const err = new Error(`Failed to fetch subtitle content: ${res.status}`);
+      err.status = res.status;
+      throw err;
+    }
+    return res.text();
+  }
 }
 
 const api = new Api();

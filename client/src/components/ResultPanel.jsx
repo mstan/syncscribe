@@ -7,7 +7,7 @@ const { getLangName, getIso3 } = langConfig;
 /**
  * Single download button component.
  */
-function DownloadButton({ jobId, language, format, label }) {
+function DownloadButton({ jobId, language, format, label, shared = false }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
@@ -15,7 +15,9 @@ function DownloadButton({ jobId, language, format, label }) {
     setLoading(true);
     setError(null);
     try {
-      const result = await api.getSubtitleUrl(jobId, language, format);
+      const result = shared
+        ? await api.getSharedSubtitleUrl(jobId, language, format)
+        : await api.getSubtitleUrl(jobId, language, format);
       if (result.url) {
         window.location.href = result.url;
       }
@@ -24,7 +26,7 @@ function DownloadButton({ jobId, language, format, label }) {
     } finally {
       setLoading(false);
     }
-  }, [jobId, language, format]);
+  }, [jobId, language, format, shared]);
 
   return (
     <div>
@@ -64,18 +66,20 @@ function DownloadButton({ jobId, language, format, label }) {
 /**
  * Small VTT download link shown beneath the SRT button.
  */
-function VttLink({ jobId, language }) {
+function VttLink({ jobId, language, shared = false }) {
   const [loading, setLoading] = useState(false);
 
   const handleDownload = useCallback(async () => {
     setLoading(true);
     try {
-      const result = await api.getSubtitleUrl(jobId, language, 'vtt');
+      const result = shared
+        ? await api.getSharedSubtitleUrl(jobId, language, 'vtt')
+        : await api.getSubtitleUrl(jobId, language, 'vtt');
       if (result.url) window.location.href = result.url;
     } catch {} finally {
       setLoading(false);
     }
-  }, [jobId, language]);
+  }, [jobId, language, shared]);
 
   return (
     <button
@@ -103,8 +107,10 @@ function Spinner({ className = 'h-5 w-5' }) {
 /**
  * Fetch subtitle text content via server proxy (avoids R2 CORS issues).
  */
-async function fetchSubtitleText(jobId, language, format) {
-  return api.getSubtitleContent(jobId, language, format);
+async function fetchSubtitleText(jobId, language, format, shared = false) {
+  return shared
+    ? api.getSharedSubtitleContent(jobId, language, format)
+    : api.getSubtitleContent(jobId, language, format);
 }
 
 /**
@@ -140,13 +146,14 @@ function countExistingSubStreams(logs) {
  * Shows download buttons for each language and format,
  * plus Download All (zip) and Embed Subtitles in Video.
  */
-export default function ResultPanel({ job, onReset, fileName, thumbnailUrl, file }) {
+export default function ResultPanel({ job, onReset, fileName, thumbnailUrl, file, shared = false, expiresAt }) {
   const [downloadAllLoading, setDownloadAllLoading] = useState(false);
   const [downloadAllError, setDownloadAllError] = useState(null);
   const [embedState, setEmbedState] = useState('idle'); // idle | loading | embedding | done | error
   const [embedProgress, setEmbedProgress] = useState(0);
   const [embedMessage, setEmbedMessage] = useState('');
   const [embedError, setEmbedError] = useState(null);
+  const [linkCopied, setLinkCopied] = useState(false);
   const filePickerRef = useRef(null);
   const embedFileRef = useRef(file);
   embedFileRef.current = file;
@@ -182,7 +189,7 @@ export default function ResultPanel({ job, onReset, fileName, thumbnailUrl, file
       for (const lang of languages) {
         for (const fmt of ['srt', 'vtt']) {
           fetches.push(
-            fetchSubtitleText(job.id, lang, fmt).then(text => {
+            fetchSubtitleText(job.id, lang, fmt, shared).then(text => {
               zip.file(`${baseName}.${lang}.${fmt}`, text);
             })
           );
@@ -260,7 +267,7 @@ export default function ResultPanel({ job, onReset, fileName, thumbnailUrl, file
       const srtFiles = [];
       for (const lang of languages) {
         const srtName = `${lang}.srt`;
-        const text = await fetchSubtitleText(job.id, lang, 'srt');
+        const text = await fetchSubtitleText(job.id, lang, 'srt', shared);
         await ffmpeg.writeFile(srtName, new TextEncoder().encode(text));
         srtFiles.push({ name: srtName, lang });
       }
@@ -437,24 +444,26 @@ export default function ResultPanel({ job, onReset, fileName, thumbnailUrl, file
               </button>
             )}
 
-            {/* Embed in Video */}
-            <button
-              onClick={() => handleEmbed()}
-              disabled={embedState === 'loading' || embedState === 'embedding'}
-              className="w-full justify-center gap-2.5 !py-3.5 text-base inline-flex items-center rounded-lg border-0 font-semibold transition-colors bg-green-600 text-white hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18" />
-                <line x1="7" y1="2" x2="7" y2="22" />
-                <line x1="17" y1="2" x2="17" y2="22" />
-                <line x1="2" y1="12" x2="22" y2="12" />
-                <line x1="2" y1="7" x2="7" y2="7" />
-                <line x1="2" y1="17" x2="7" y2="17" />
-                <line x1="17" y1="7" x2="22" y2="7" />
-                <line x1="17" y1="17" x2="22" y2="17" />
-              </svg>
-              <span>{file ? 'Embed Subtitles in Video' : 'Embed Subtitles in Video...'}</span>
-            </button>
+            {/* Embed in Video (hidden on shared pages) */}
+            {!shared && (
+              <button
+                onClick={() => handleEmbed()}
+                disabled={embedState === 'loading' || embedState === 'embedding'}
+                className="w-full justify-center gap-2.5 !py-3.5 text-base inline-flex items-center rounded-lg border-0 font-semibold transition-colors bg-green-600 text-white hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18" />
+                  <line x1="7" y1="2" x2="7" y2="22" />
+                  <line x1="17" y1="2" x2="17" y2="22" />
+                  <line x1="2" y1="12" x2="22" y2="12" />
+                  <line x1="2" y1="7" x2="7" y2="7" />
+                  <line x1="2" y1="17" x2="7" y2="17" />
+                  <line x1="17" y1="7" x2="22" y2="7" />
+                  <line x1="17" y1="17" x2="22" y2="17" />
+                </svg>
+                <span>{file ? 'Embed Subtitles in Video' : 'Embed Subtitles in Video...'}</span>
+              </button>
+            )}
           </div>
         )}
 
@@ -462,20 +471,22 @@ export default function ResultPanel({ job, onReset, fileName, thumbnailUrl, file
           <p className="mb-4 text-xs text-red-600 dark:text-red-400">{downloadAllError}</p>
         )}
 
-        {!file && embedState === 'idle' && (
+        {!shared && !file && embedState === 'idle' && (
           <p className="mb-4 text-center text-xs text-gray-400 dark:text-gray-500">
             Embed will prompt you to re-select your video file.
           </p>
         )}
 
         {/* Hidden file picker for embed fallback */}
-        <input
-          ref={filePickerRef}
-          type="file"
-          accept=".mkv,.mp4,.avi,.mov,.webm,.flv,.wmv,.m4v"
-          onChange={handleEmbedFilePick}
-          className="hidden"
-        />
+        {!shared && (
+          <input
+            ref={filePickerRef}
+            type="file"
+            accept=".mkv,.mp4,.avi,.mov,.webm,.flv,.wmv,.m4v"
+            onChange={handleEmbedFilePick}
+            className="hidden"
+          />
+        )}
 
         {/* ── Per-language individual downloads ─────────────────── */}
         <div className="border-t border-gray-200 pt-6 dark:border-gray-700">
@@ -501,27 +512,51 @@ export default function ResultPanel({ job, onReset, fileName, thumbnailUrl, file
                   language={lang}
                   format="srt"
                   label="Download SRT"
+                  shared={shared}
                 />
-                <VttLink jobId={job.id} language={lang} />
+                <VttLink jobId={job.id} language={lang} shared={shared} />
               </div>
             </div>
           ))}
         </div>
 
-        {/* Sharing encouragement */}
-        <div className="mt-6 flex items-start gap-2.5 rounded-lg bg-brand-50 px-4 py-3 dark:bg-brand-950">
-          <svg className="mt-0.5 h-4 w-4 flex-shrink-0 text-brand-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <circle cx="18" cy="5" r="3" />
-            <circle cx="6" cy="12" r="3" />
-            <circle cx="18" cy="19" r="3" />
-            <line x1="8.59" y1="13.51" x2="15.42" y2="17.49" />
-            <line x1="15.41" y1="6.51" x2="8.59" y2="10.49" />
-          </svg>
-          <p className="text-xs text-brand-700 dark:text-brand-300">
-            Feel free to share your generated subtitles with others! Community sharing helps
-            make media more accessible for everyone.
-          </p>
-        </div>
+        {/* Share link / expiry notice */}
+        {shared ? (
+          <div className="mt-6 flex items-start gap-2.5 rounded-lg bg-brand-50 px-4 py-3 dark:bg-brand-950">
+            <svg className="mt-0.5 h-4 w-4 flex-shrink-0 text-brand-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="12" cy="12" r="10" />
+              <polyline points="12 6 12 12 16 14" />
+            </svg>
+            <p className="text-xs text-brand-700 dark:text-brand-300">
+              This shared link expires on {new Date(expiresAt).toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' })}.
+            </p>
+          </div>
+        ) : (
+          <div className="mt-6 flex items-center gap-2.5 rounded-lg bg-brand-50 px-4 py-3 dark:bg-brand-950">
+            <svg className="h-4 w-4 flex-shrink-0 text-brand-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="18" cy="5" r="3" />
+              <circle cx="6" cy="12" r="3" />
+              <circle cx="18" cy="19" r="3" />
+              <line x1="8.59" y1="13.51" x2="15.42" y2="17.49" />
+              <line x1="15.41" y1="6.51" x2="8.59" y2="10.49" />
+            </svg>
+            <p className="flex-1 text-xs text-brand-700 dark:text-brand-300">
+              Share these subtitles with anyone — link is valid for 7 days.
+            </p>
+            <button
+              onClick={() => {
+                const url = `${window.location.origin}/job/${job.id}`;
+                navigator.clipboard.writeText(url).then(() => {
+                  setLinkCopied(true);
+                  setTimeout(() => setLinkCopied(false), 2000);
+                });
+              }}
+              className="flex-shrink-0 rounded-md bg-brand-600 px-3 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-brand-700"
+            >
+              {linkCopied ? 'Copied!' : 'Copy Share Link'}
+            </button>
+          </div>
+        )}
 
         {/* AI disclaimer */}
         <div className="mt-3 flex items-start gap-2.5 rounded-lg bg-amber-50 px-4 py-3 dark:bg-amber-950">
@@ -543,24 +578,36 @@ export default function ResultPanel({ job, onReset, fileName, thumbnailUrl, file
               {job.audio_seconds && (
                 <span>Duration: {Math.ceil(job.audio_seconds / 60)} min</span>
               )}
-              {job.minutes_charged && (
+              {!shared && job.minutes_charged && (
                 <span>Credits used: {job.minutes_charged} min</span>
               )}
             </div>
           </div>
         )}
 
-        {/* Generate another */}
+        {/* Generate another / Go to SyncScribe */}
         <div className="mt-6">
           <button
             onClick={onReset}
             className="btn-secondary w-full"
           >
-            <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <polyline points="1 4 1 10 7 10" />
-              <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10" />
-            </svg>
-            Generate Another
+            {shared ? (
+              <>
+                <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+                  <polyline points="9 22 9 12 15 12 15 22" />
+                </svg>
+                Go to SyncScribe
+              </>
+            ) : (
+              <>
+                <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <polyline points="1 4 1 10 7 10" />
+                  <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10" />
+                </svg>
+                Generate Another
+              </>
+            )}
           </button>
         </div>
       </div>
