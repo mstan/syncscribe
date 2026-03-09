@@ -257,18 +257,18 @@ export default function ResultPanel({ job, onReset, fileName, thumbnailUrl, file
         args.push('-i', srt.name);
       }
 
-      // Map video+audio from input, map each subtitle input
-      args.push('-map', '0');
+      // Map only video+audio from original (skip any existing subtitle tracks
+      // to avoid index conflicts). Our generated SRTs replace them cleanly.
+      // The original file is never modified — this is a new MKV.
+      args.push('-map', '0:v', '-map', '0:a');
       for (let i = 0; i < srtFiles.length; i++) {
         args.push('-map', `${i + 1}`);
       }
 
-      // Copy all codecs (no re-encoding). -map 0 preserves all original
-      // streams (video, audio, existing subtitles) non-destructively.
-      args.push('-c', 'copy');
+      // Copy video+audio codecs (no re-encoding)
+      args.push('-c:v', 'copy', '-c:a', 'copy', '-c:s', 'srt');
 
-      // Set language metadata for each new subtitle track.
-      // Our SRT inputs are mapped after all original streams.
+      // Set language metadata for each subtitle track
       for (let i = 0; i < srtFiles.length; i++) {
         const iso3 = LANG_TO_ISO639_2[srtFiles[i].lang] || 'und';
         args.push(`-metadata:s:s:${i}`, `language=${iso3}`);
