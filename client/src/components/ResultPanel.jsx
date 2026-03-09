@@ -426,23 +426,25 @@ export default function ResultPanel({ job, onReset, fileName, thumbnailUrl, file
         {/* Bulk action buttons — stacked full-width */}
         {(embedState === 'idle' || embedState === 'done' || embedState === 'error') && (
           <div className="mb-6 flex flex-col gap-3">
-            {/* Download All */}
-            <button
-              onClick={handleDownloadAll}
-              disabled={downloadAllLoading}
-              className="btn-primary w-full justify-center gap-2.5 !py-3.5 text-base"
-            >
-              {downloadAllLoading ? (
-                <Spinner className="h-5 w-5 text-white/60" />
-              ) : (
-                <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-                  <polyline points="7 10 12 15 17 10" />
-                  <line x1="12" y1="15" x2="12" y2="3" />
-                </svg>
-              )}
-              <span className="font-semibold">Download All Subtitles</span>
-            </button>
+            {/* Download All (only shown for multi-language jobs) */}
+            {languages.length > 1 && (
+              <button
+                onClick={handleDownloadAll}
+                disabled={downloadAllLoading}
+                className="btn-primary w-full justify-center gap-2.5 !py-3.5 text-base"
+              >
+                {downloadAllLoading ? (
+                  <Spinner className="h-5 w-5 text-white/60" />
+                ) : (
+                  <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                    <polyline points="7 10 12 15 17 10" />
+                    <line x1="12" y1="15" x2="12" y2="3" />
+                  </svg>
+                )}
+                <span className="font-semibold">Download All Subtitles</span>
+              </button>
+            )}
 
             {/* Embed in Video */}
             <button
