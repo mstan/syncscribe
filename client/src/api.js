@@ -100,6 +100,14 @@ class Api {
     return this._request('POST', '/api/checkout', { pack_id: packId });
   }
 
+  /**
+   * Redeem a promo code for free credits.
+   * Returns { minutes_granted, balance }.
+   */
+  async redeemPromo(code) {
+    return this._request('POST', '/api/redeem-promo', { code });
+  }
+
   // ── Jobs ────────────────────────────────────────────────────────────
 
   /**

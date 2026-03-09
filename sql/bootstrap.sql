@@ -98,6 +98,25 @@ CREATE TABLE IF NOT EXISTS subtitles (
 
 CREATE INDEX IF NOT EXISTS idx_subtitles_job_id ON subtitles(job_id);
 
+-- Promo codes
+CREATE TABLE IF NOT EXISTS promo_codes (
+  code TEXT PRIMARY KEY,
+  minutes_amount INTEGER NOT NULL,
+  max_redemptions INTEGER,          -- NULL = unlimited
+  expires_at TIMESTAMPTZ,           -- NULL = never expires
+  note TEXT,                        -- e.g. "HN launch March 2026"
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+-- Promo redemptions (one per user per code)
+CREATE TABLE IF NOT EXISTS promo_redemptions (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID NOT NULL REFERENCES users(id),
+  code TEXT NOT NULL REFERENCES promo_codes(code),
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  UNIQUE(user_id, code)
+);
+
 -- Media cache (deduplication)
 CREATE TABLE IF NOT EXISTS media_cache (
   audio_sha256 TEXT NOT NULL,

@@ -35,6 +35,13 @@ export default function BuyCreditsModal({ onClose }) {
   const [purchasing, setPurchasing] = useState(null);
   const [error, setError] = useState(null);
 
+  // Promo code state
+  const [promoOpen, setPromoOpen] = useState(false);
+  const [promoCode, setPromoCode] = useState('');
+  const [promoLoading, setPromoLoading] = useState(false);
+  const [promoError, setPromoError] = useState(null);
+  const [promoSuccess, setPromoSuccess] = useState(null);
+
   /**
    * Fetch credit packs from API on mount.
    */
@@ -76,6 +83,28 @@ export default function BuyCreditsModal({ onClose }) {
       setPurchasing(null);
     }
   }, []);
+
+  /**
+   * Handle promo code redemption.
+   */
+  const handleRedeemPromo = useCallback(async (e) => {
+    e.preventDefault();
+    if (!promoCode.trim()) return;
+
+    setPromoLoading(true);
+    setPromoError(null);
+    setPromoSuccess(null);
+
+    try {
+      const { minutes_granted } = await api.redeemPromo(promoCode.trim());
+      setPromoSuccess(`${minutes_granted} minutes added to your account!`);
+      setPromoCode('');
+    } catch (err) {
+      setPromoError(err.body?.error || err.message || 'Failed to redeem promo code');
+    } finally {
+      setPromoLoading(false);
+    }
+  }, [promoCode]);
 
   /**
    * Determine the "best value" pack (lowest price per minute).
@@ -204,6 +233,48 @@ export default function BuyCreditsModal({ onClose }) {
             })}
           </div>
         )}
+
+        {/* Promo code section */}
+        <div className="mt-6 border-t border-gray-200 pt-5 dark:border-gray-700">
+          {!promoOpen ? (
+            <button
+              onClick={() => setPromoOpen(true)}
+              className="mx-auto block text-sm text-gray-500 underline decoration-gray-300 underline-offset-2 transition-colors hover:text-gray-700 dark:text-gray-400 dark:decoration-gray-600 dark:hover:text-gray-200"
+            >
+              Have a promo code?
+            </button>
+          ) : (
+            <div>
+              {promoSuccess && (
+                <div className="mb-3 rounded-lg bg-green-50 px-4 py-3 text-sm text-green-700 dark:bg-green-950 dark:text-green-400">
+                  {promoSuccess}
+                </div>
+              )}
+              {promoError && (
+                <div className="mb-3 rounded-lg bg-red-50 px-4 py-3 text-sm text-red-700 dark:bg-red-950 dark:text-red-400">
+                  {promoError}
+                </div>
+              )}
+              <form onSubmit={handleRedeemPromo} className="flex gap-2">
+                <input
+                  type="text"
+                  value={promoCode}
+                  onChange={(e) => setPromoCode(e.target.value)}
+                  placeholder="Enter promo code"
+                  className="flex-1 rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 placeholder-gray-400 focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100 dark:placeholder-gray-500 dark:focus:border-brand-400 dark:focus:ring-brand-400"
+                  disabled={promoLoading}
+                />
+                <button
+                  type="submit"
+                  disabled={promoLoading || !promoCode.trim()}
+                  className="rounded-lg bg-brand-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-brand-700 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-brand-500 dark:hover:bg-brand-600"
+                >
+                  {promoLoading ? 'Redeeming...' : 'Redeem'}
+                </button>
+              </form>
+            </div>
+          )}
+        </div>
 
         {/* Footer note */}
         <p className="mt-6 text-center text-xs text-gray-400 dark:text-gray-500">
