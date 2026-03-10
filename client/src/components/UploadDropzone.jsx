@@ -1,6 +1,5 @@
 import { useState, useRef, useCallback } from 'react';
-import langConfig from '../../../shared/languages.js';
-const { ISO639_2_NAMES, ISO639_2_TO_1 } = langConfig;
+import { ISO639_2_NAMES, ISO639_2_TO_1 } from '../../../shared/languages.js';
 
 /**
  * Accepted file extensions and MIME types (video + audio).

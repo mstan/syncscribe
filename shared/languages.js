@@ -1,7 +1,7 @@
 /**
  * Centralized language configuration.
  * Single source of truth for all language codes, names, and mappings.
- * CommonJS format — backend requires it, Vite imports CJS natively.
+ * Uses named ESM exports; CJS shim at bottom for backend require().
  */
 
 /**
@@ -121,7 +121,7 @@ function getIso3(code) {
   return LANG_TO_ISO639_2[code] || 'und';
 }
 
-module.exports = {
+export {
   LANGUAGES,
   AUTO_DETECT,
   LANGUAGE_NAMES,
@@ -131,3 +131,11 @@ module.exports = {
   getLangName,
   getIso3,
 };
+
+// CJS shim so backend require() still works
+if (typeof module !== 'undefined') {
+  module.exports = {
+    LANGUAGES, AUTO_DETECT, LANGUAGE_NAMES, LANG_TO_ISO639_2,
+    ISO639_2_TO_1, ISO639_2_NAMES, getLangName, getIso3,
+  };
+}

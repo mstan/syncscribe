@@ -4,6 +4,7 @@ import useAuth from './hooks/useAuth';
 import useCredits from './hooks/useCredits';
 import useJob from './hooks/useJob';
 import AppShell from './components/AppShell';
+import LandingPage from './components/LandingPage';
 import UploadDropzone from './components/UploadDropzone';
 import LanguageSelector from './components/LanguageSelector';
 import CostBreakdown from './components/CostBreakdown';
@@ -135,6 +136,7 @@ function MainPage() {
   const handleAuthSuccess = useCallback(() => {
     setShowAuthGate(false);
     credits.refresh();
+    window.scrollTo(0, 0);
   }, [credits.refresh]);
 
   /**
@@ -156,6 +158,20 @@ function MainPage() {
     }
   }, [jobHook.job?.status, jobHook.job?.id]);
 
+  // Prevent flash of landing page while auth state is loading
+  if (auth.loading) {
+    return (
+      <AppShell
+        auth={auth}
+        credits={credits}
+        onBuyCredits={() => setShowBuyCredits(true)}
+        onSignIn={() => setShowAuthGate(true)}
+      >
+        <div className="mx-auto w-full max-w-3xl px-4 py-8" />
+      </AppShell>
+    );
+  }
+
   return (
     <AppShell
       auth={auth}
@@ -163,9 +179,14 @@ function MainPage() {
       onBuyCredits={() => setShowBuyCredits(true)}
       onSignIn={() => setShowAuthGate(true)}
     >
+      {/* Landing page for unauthenticated users */}
+      {!auth.isAuthenticated && view === VIEW.UPLOAD && (
+        <LandingPage onSignIn={() => setShowAuthGate(true)} />
+      )}
+
       <div className="mx-auto w-full max-w-3xl px-4 py-8">
-        {/* Upload / Idle state */}
-        {view === VIEW.UPLOAD && (
+        {/* Upload / Idle state (authenticated only) */}
+        {view === VIEW.UPLOAD && auth.isAuthenticated && (
           <UploadDropzone
             isAuthenticated={auth.isAuthenticated}
             onAuthRequired={handleAuthRequired}

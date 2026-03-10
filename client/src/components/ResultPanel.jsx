@@ -1,8 +1,7 @@
 import { useState, useCallback, useRef } from 'react';
 import api from '../api';
 
-import langConfig from '../../../shared/languages.js';
-const { getLangName, getIso3 } = langConfig;
+import { getLangName, getIso3 } from '../../../shared/languages.js';
 
 /**
  * Single download button component.

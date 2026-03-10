@@ -1,6 +1,5 @@
 import { useMemo } from 'react';
-import langConfig from '../../../shared/languages.js';
-const { getLangName } = langConfig;
+import { getLangName } from '../../../shared/languages.js';
 
 /**
  * CostBreakdown -- shows the estimated cost before job creation.

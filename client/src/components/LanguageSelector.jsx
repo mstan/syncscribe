@@ -1,6 +1,5 @@
 import { useState, useCallback, useRef, useEffect, useMemo } from 'react';
-import langConfig from '../../../shared/languages.js';
-const { LANGUAGES, AUTO_DETECT, getLangName } = langConfig;
+import { LANGUAGES, AUTO_DETECT, getLangName } from '../../../shared/languages.js';
 
 /**
  * Searchable single-select dropdown.
