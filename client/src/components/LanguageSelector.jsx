@@ -430,6 +430,7 @@ export default function LanguageSelector({ fileName, detectedLanguage, thumbnail
               </label>
               <p className="mb-2 text-xs text-stone-500 dark:text-stone-400">
                 Help improve name accuracy by telling us what show this is from. We'll look up character names to correct the transcription.
+                Corrections are automated and may occasionally be wrong — use at your own discretion.
               </p>
               <textarea
                 value={seriesContext}
