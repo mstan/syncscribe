@@ -301,17 +301,22 @@ export default function LanguageSelector({ fileName, detectedLanguage, thumbnail
         </div>
 
         <div className="p-8">
-        {/* Target language */}
+        {/* Subtitle language */}
         <div className="mb-6">
           <label className="mb-2 block text-sm font-semibold text-stone-700 dark:text-stone-300">
-            Target Language
+            Subtitle Language
           </label>
           <p className="mb-3 text-xs text-stone-500 dark:text-stone-400">
-            The spoken language in the audio. Subtitles will be generated in this language.
-            {detectedLanguage && primaryLanguage === detectedLanguage && (
-              <span className="ml-1 text-brand-600 dark:text-brand-400">(detected from audio track)</span>
-            )}
+            Choose the language for your subtitles. Change this if you want a different language than what's spoken.
           </p>
+          {detectedLanguage && (
+            <div className="mb-3 inline-flex items-center gap-1.5 rounded-full bg-green-50 px-3 py-1.5 text-xs font-medium text-green-700 dark:bg-green-950 dark:text-green-400">
+              <svg className="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <polyline points="20 6 9 17 4 12" />
+              </svg>
+              Detected from audio: {getLangName(detectedLanguage)}
+            </div>
+          )}
           <SearchableSelect
             options={PRIMARY_OPTIONS}
             value={primaryLanguage}
@@ -368,7 +373,7 @@ export default function LanguageSelector({ fileName, detectedLanguage, thumbnail
                 <line x1="12" y1="8" x2="12.01" y2="8" />
               </svg>
               <p className="text-xs text-brand-700 dark:text-brand-300">
-                You will always receive subtitles in the target language above. These
+                You will always receive subtitles in your primary language above. These
                 additional translations are generated on top of that, each at
                 <span className="font-semibold"> half the credit cost</span> of the primary.
               </p>
