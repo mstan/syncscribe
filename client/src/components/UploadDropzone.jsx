@@ -3,13 +3,18 @@ import langConfig from '../../../shared/languages.js';
 const { ISO639_2_NAMES, ISO639_2_TO_1 } = langConfig;
 
 /**
- * Accepted video file extensions and MIME types.
+ * Accepted file extensions and MIME types (video + audio).
  */
-const ACCEPT_EXTENSIONS = ['.mkv', '.mp4', '.avi', '.mov', '.webm', '.flv', '.wmv', '.m4v'];
+const ACCEPT_EXTENSIONS = [
+  '.mkv', '.mp4', '.avi', '.mov', '.webm', '.flv', '.wmv', '.m4v',
+  '.mp3', '.wav', '.flac', '.aac', '.ogg', '.m4a', '.wma', '.opus'
+];
 const ACCEPT_MIMETYPES = [
   'video/mp4', 'video/x-matroska', 'video/avi', 'video/x-msvideo',
   'video/quicktime', 'video/webm', 'video/x-flv', 'video/x-ms-wmv',
-  'video/x-m4v'
+  'video/x-m4v',
+  'audio/mpeg', 'audio/wav', 'audio/x-wav', 'audio/flac', 'audio/aac',
+  'audio/ogg', 'audio/x-m4a', 'audio/mp4', 'audio/x-ms-wma', 'audio/opus'
 ];
 
 /**
