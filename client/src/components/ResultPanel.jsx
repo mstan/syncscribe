@@ -452,7 +452,35 @@ export default function ResultPanel({ job, onReset, fileName, thumbnailUrl, file
           </div>
         ) : null}
 
-        {/* Primary download action */}
+        {/* Embed Subtitles section */}
+        {!shared && (embedState === 'idle' || embedState === 'done' || embedState === 'error') && (
+          <div className="mb-6">
+            <button
+              onClick={() => handleEmbed()}
+              disabled={embedState === 'loading' || embedState === 'embedding'}
+              className="btn-primary w-full justify-center gap-2.5 !py-3.5 text-base"
+            >
+              <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18" />
+                <line x1="7" y1="2" x2="7" y2="22" />
+                <line x1="17" y1="2" x2="17" y2="22" />
+                <line x1="2" y1="12" x2="22" y2="12" />
+                <line x1="2" y1="7" x2="7" y2="7" />
+                <line x1="2" y1="17" x2="7" y2="17" />
+                <line x1="17" y1="7" x2="22" y2="7" />
+                <line x1="17" y1="17" x2="22" y2="17" />
+              </svg>
+              <span className="font-semibold">{file ? 'Embed Subtitles in Video' : 'Embed Subtitles in Video...'}</span>
+            </button>
+            {!file && embedState === 'idle' && (
+              <p className="mt-2 text-center text-xs text-stone-400 dark:text-stone-500">
+                Embed will prompt you to re-select your video file.
+              </p>
+            )}
+          </div>
+        )}
+
+        {/* Download action */}
         {(embedState === 'idle' || embedState === 'done' || embedState === 'error') && (
           <div className="mb-6">
             {languages.length > 1 ? (
@@ -460,10 +488,10 @@ export default function ResultPanel({ job, onReset, fileName, thumbnailUrl, file
                 <button
                   onClick={handleDownloadAll}
                   disabled={downloadAllLoading}
-                  className="btn-primary w-full justify-center gap-2.5 !py-3.5 text-base"
+                  className="btn-secondary w-full justify-center gap-2.5 !py-3"
                 >
                   {downloadAllLoading ? (
-                    <Spinner className="h-5 w-5 text-white/60" />
+                    <Spinner className="h-5 w-5 text-stone-400" />
                   ) : (
                     <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                       <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
@@ -471,7 +499,7 @@ export default function ResultPanel({ job, onReset, fileName, thumbnailUrl, file
                       <line x1="12" y1="15" x2="12" y2="3" />
                     </svg>
                   )}
-                  <span className="font-semibold">Download All Subtitles</span>
+                  <span>Download All Subtitles</span>
                 </button>
                 {downloadAllError && (
                   <p className="mt-2 text-xs text-red-600 dark:text-red-400">{downloadAllError}</p>
@@ -518,34 +546,6 @@ export default function ResultPanel({ job, onReset, fileName, thumbnailUrl, file
                 </div>
               </div>
             ))}
-          </div>
-        )}
-
-        {/* Embed Subtitles section */}
-        {!shared && (embedState === 'idle' || embedState === 'done' || embedState === 'error') && (
-          <div className="border-t border-stone-200 pt-6 dark:border-stone-700">
-            <button
-              onClick={() => handleEmbed()}
-              disabled={embedState === 'loading' || embedState === 'embedding'}
-              className="btn-secondary w-full justify-center gap-2.5 !py-3"
-            >
-              <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18" />
-                <line x1="7" y1="2" x2="7" y2="22" />
-                <line x1="17" y1="2" x2="17" y2="22" />
-                <line x1="2" y1="12" x2="22" y2="12" />
-                <line x1="2" y1="7" x2="7" y2="7" />
-                <line x1="2" y1="17" x2="7" y2="17" />
-                <line x1="17" y1="7" x2="22" y2="7" />
-                <line x1="17" y1="17" x2="22" y2="17" />
-              </svg>
-              <span>{file ? 'Embed Subtitles in Video' : 'Embed Subtitles in Video...'}</span>
-            </button>
-            {!file && embedState === 'idle' && (
-              <p className="mt-2 text-center text-xs text-stone-400 dark:text-stone-500">
-                Embed will prompt you to re-select your video file.
-              </p>
-            )}
           </div>
         )}
 

@@ -571,10 +571,14 @@ export default function UploadDropzone({ isAuthenticated, onAuthRequired, onAudi
     // If we already have a preview URL, just play it
     if (previewUrls[audioIndex]) {
       const audio = new Audio(previewUrls[audioIndex]);
+      audio.volume = 1.0;
       audio.onended = () => setPlayingTrack(null);
       audioElRef.current = audio;
       setPlayingTrack(audioIndex);
-      audio.play();
+      audio.play().catch(err => {
+        console.error('Preview playback failed:', err);
+        setPlayingTrack(null);
+      });
       return;
     }
 
@@ -589,9 +593,9 @@ export default function UploadDropzone({ isAuthenticated, onAuthRequired, onAudi
 
       probeLogsRef.current = [];
       const exitCode = await ffmpeg.exec([
+        '-ss', '30',       // Fast seek before input
         '-i', inputName,
         '-map', `0:a:${audioIndex}`,
-        '-ss', '30',       // Start at 30s (skip intros)
         '-t', '8',          // 8 second clip
         '-ac', '2',         // Stereo for preview
         '-ar', '44100',
@@ -631,10 +635,14 @@ export default function UploadDropzone({ isAuthenticated, onAuthRequired, onAudi
       setPreviewLoading(null);
 
       const audio = new Audio(url);
+      audio.volume = 1.0;
       audio.onended = () => setPlayingTrack(null);
       audioElRef.current = audio;
       setPlayingTrack(audioIndex);
-      audio.play();
+      audio.play().catch(err => {
+        console.error('Preview playback failed:', err);
+        setPlayingTrack(null);
+      });
     } catch (err) {
       console.error('Preview extraction failed:', err);
       setPreviewLoading(null);
@@ -768,24 +776,25 @@ export default function UploadDropzone({ isAuthenticated, onAuthRequired, onAudi
                   <button
                     onClick={(e) => { e.stopPropagation(); handlePreview(track.audioIndex); }}
                     disabled={isLoading}
-                    className="mr-3 flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full text-stone-400 transition-colors hover:bg-stone-100 hover:text-stone-600 disabled:opacity-50 dark:text-stone-500 dark:hover:bg-stone-800 dark:hover:text-stone-300"
+                    className="mr-3 flex flex-shrink-0 items-center gap-1.5 rounded-lg border border-stone-200 bg-stone-50 px-3 py-1.5 text-xs font-medium text-stone-600 transition-colors hover:bg-stone-100 hover:text-stone-800 disabled:opacity-50 dark:border-stone-600 dark:bg-stone-800 dark:text-stone-300 dark:hover:bg-stone-700 dark:hover:text-stone-100"
                     title={isPlaying ? 'Pause preview' : 'Preview track'}
                   >
                     {isLoading ? (
-                      <svg className="h-4 w-4 animate-spin" viewBox="0 0 24 24" fill="none">
+                      <svg className="h-3.5 w-3.5 animate-spin" viewBox="0 0 24 24" fill="none">
                         <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" />
                         <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
                       </svg>
                     ) : isPlaying ? (
-                      <svg className="h-4 w-4 text-brand-600" viewBox="0 0 24 24" fill="currentColor">
+                      <svg className="h-3.5 w-3.5 text-brand-600 dark:text-brand-400" viewBox="0 0 24 24" fill="currentColor">
                         <rect x="6" y="4" width="4" height="16" rx="1" />
                         <rect x="14" y="4" width="4" height="16" rx="1" />
                       </svg>
                     ) : (
-                      <svg className="h-4 w-4" viewBox="0 0 24 24" fill="currentColor">
+                      <svg className="h-3.5 w-3.5" viewBox="0 0 24 24" fill="currentColor">
                         <path d="M8 5v14l11-7z" />
                       </svg>
                     )}
+                    {isPlaying ? 'Pause' : 'Preview'}
                   </button>
                 </div>
               );
