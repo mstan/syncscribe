@@ -259,6 +259,8 @@ export default function LanguageSelector({ fileName, detectedLanguage, thumbnail
   const [primaryLanguage, setPrimaryLanguage] = useState(defaultLang);
   const [showAdditional, setShowAdditional] = useState(false);
   const [additionalLanguages, setAdditionalLanguages] = useState([]);
+  const [showAdvanced, setShowAdvanced] = useState(false);
+  const [seriesContext, setSeriesContext] = useState('');
 
   /** Languages available for additional translations (exclude primary). */
   const additionalOptions = useMemo(
@@ -273,11 +275,16 @@ export default function LanguageSelector({ fileName, detectedLanguage, thumbnail
   }, []);
 
   const handleConfirm = useCallback(() => {
-    onConfirm({
+    const config = {
       language: primaryLanguage,
       additional_languages: additionalLanguages.filter(l => l !== primaryLanguage)
-    });
-  }, [primaryLanguage, additionalLanguages, onConfirm]);
+    };
+    const trimmed = seriesContext.trim();
+    if (trimmed) {
+      config.series_context = trimmed;
+    }
+    onConfirm(config);
+  }, [primaryLanguage, additionalLanguages, seriesContext, onConfirm]);
 
   return (
     <div className="flex flex-col items-center">
@@ -397,6 +404,47 @@ export default function LanguageSelector({ fileName, detectedLanguage, thumbnail
             )}
           </div>
         )}
+
+        {/* Divider */}
+        <div className="mb-6 border-t border-stone-100 dark:border-stone-800" />
+
+        {/* Advanced section (collapsible) */}
+        <div className="mb-6">
+          <button
+            onClick={() => setShowAdvanced(!showAdvanced)}
+            className="flex w-full items-center gap-2 text-sm font-semibold text-stone-700 dark:text-stone-300"
+          >
+            <svg
+              className={`h-4 w-4 flex-shrink-0 text-stone-400 transition-transform dark:text-stone-500 ${showAdvanced ? 'rotate-90' : ''}`}
+              viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
+            >
+              <polyline points="9 18 15 12 9 6" />
+            </svg>
+            Advanced
+          </button>
+
+          {showAdvanced && (
+            <div className="mt-3">
+              <label className="mb-1 block text-sm font-medium text-stone-700 dark:text-stone-300">
+                Series or episode context <span className="font-normal text-stone-400 dark:text-stone-500">(optional)</span>
+              </label>
+              <p className="mb-2 text-xs text-stone-500 dark:text-stone-400">
+                Help improve name accuracy by telling us what show this is from. We'll look up character names to correct the transcription.
+              </p>
+              <textarea
+                value={seriesContext}
+                onChange={(e) => setSeriesContext(e.target.value.slice(0, 200))}
+                maxLength={200}
+                rows={2}
+                placeholder="e.g. Season 1, Episode 23 of Gundam SEED"
+                className="w-full rounded-lg border border-stone-300 bg-white px-3 py-2 text-sm shadow-sm transition-colors placeholder:text-stone-400 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/20 dark:border-stone-600 dark:bg-stone-800 dark:text-stone-100 dark:placeholder:text-stone-500"
+              />
+              <div className="mt-1 text-right text-xs text-stone-400 dark:text-stone-500">
+                {seriesContext.length}/200
+              </div>
+            </div>
+          )}
+        </div>
 
         {/* Action buttons */}
         <div className="flex items-center gap-3">

@@ -72,6 +72,7 @@ CREATE TABLE IF NOT EXISTS jobs (
   cached_hit BOOLEAN DEFAULT FALSE,
   language TEXT,
   additional_languages TEXT[],
+  series_context TEXT,
   mode TEXT NOT NULL DEFAULT 'transcribe',
   model TEXT DEFAULT 'whisper-1',
   error_code TEXT,

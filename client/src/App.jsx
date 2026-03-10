@@ -88,12 +88,16 @@ function MainPage() {
     if (!audioData || !languageConfig) return;
 
     try {
-      const { job } = await jobHook.createJob({
+      const jobData = {
         audio_sha256: audioData.sha256,
         audio_seconds: audioData.seconds,
         language: languageConfig.language,
         additional_languages: languageConfig.additional_languages
-      });
+      };
+      if (languageConfig.series_context) {
+        jobData.series_context = languageConfig.series_context;
+      }
+      const { job } = await jobHook.createJob(jobData);
 
       setView(VIEW.PROGRESS);
 
