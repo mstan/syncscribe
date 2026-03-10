@@ -281,25 +281,26 @@ export default function LanguageSelector({ fileName, detectedLanguage, thumbnail
 
   return (
     <div className="flex flex-col items-center">
-      {/* Header */}
-      <div className="mb-8 text-center">
-        {thumbnailUrl && (
-          <img
-            src={thumbnailUrl}
-            alt=""
-            className="mx-auto mb-4 h-44 w-auto rounded-xl border border-stone-200 shadow-lg dark:border-stone-700"
-          />
-        )}
-        <h1 className="mb-2 text-2xl font-bold text-stone-900 dark:text-stone-100">
-          Language Settings
-        </h1>
-        <p className="text-sm text-stone-500 dark:text-stone-400">
-          <span className="font-medium text-stone-700 dark:text-stone-300">{fileName}</span>
-        </p>
-      </div>
-
       {/* Settings card */}
-      <div className="w-full max-w-2xl rounded-2xl border border-stone-200 bg-white p-8 shadow-sm dark:border-stone-700 dark:bg-stone-900">
+      <div className="w-full max-w-2xl overflow-hidden rounded-2xl border border-stone-200 bg-white shadow-sm dark:border-stone-700 dark:bg-stone-900">
+        {/* Header section */}
+        <div className="bg-stone-50 px-8 pt-8 pb-6 text-center dark:bg-stone-800/50">
+          {thumbnailUrl && (
+            <img
+              src={thumbnailUrl}
+              alt=""
+              className="mx-auto mb-4 h-44 w-auto rounded-xl border border-stone-200 shadow-lg dark:border-stone-700"
+            />
+          )}
+          <h1 className="mb-1 text-2xl font-bold text-stone-900 dark:text-stone-100">
+            Language Settings
+          </h1>
+          <p className="text-sm text-stone-500 dark:text-stone-400">
+            <span className="font-medium text-stone-700 dark:text-stone-300">{fileName}</span>
+          </p>
+        </div>
+
+        <div className="p-8">
         {/* Target language */}
         <div className="mb-6">
           <label className="mb-2 block text-sm font-semibold text-stone-700 dark:text-stone-300">
@@ -327,17 +328,23 @@ export default function LanguageSelector({ fileName, detectedLanguage, thumbnail
           <div className="mb-6">
             <button
               onClick={() => setShowAdditional(true)}
-              className="flex items-center gap-2 text-sm font-medium text-brand-600 transition-colors hover:text-brand-700 dark:text-brand-400 dark:hover:text-brand-300"
+              className="group w-full rounded-lg border border-dashed border-stone-300 px-4 py-4 text-left transition-all hover:border-brand-400 hover:bg-brand-50/50 dark:border-stone-600 dark:hover:border-brand-600 dark:hover:bg-brand-950/50"
             >
-              <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <line x1="12" y1="5" x2="12" y2="19" />
-                <line x1="5" y1="12" x2="19" y2="12" />
-              </svg>
-              Add translated subtitles in other languages
+              <div className="flex items-center gap-3">
+                <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full bg-brand-100 text-brand-600 transition-colors group-hover:bg-brand-200 dark:bg-brand-950 dark:text-brand-400">
+                  <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <line x1="12" y1="5" x2="12" y2="19" />
+                    <line x1="5" y1="12" x2="19" y2="12" />
+                  </svg>
+                </div>
+                <div>
+                  <span className="text-sm font-semibold text-stone-900 dark:text-stone-100">Add translated subtitles</span>
+                  <p className="mt-0.5 text-xs text-stone-500 dark:text-stone-400">
+                    Get translations at half credit cost per language
+                  </p>
+                </div>
+              </div>
             </button>
-            <p className="mt-2 text-xs text-stone-400 dark:text-stone-500">
-              In addition to subtitles in the target language above, get translated subtitles at half credit cost per language.
-            </p>
           </div>
         ) : (
           <div className="mb-6">
@@ -400,6 +407,7 @@ export default function LanguageSelector({ fileName, detectedLanguage, thumbnail
               : 'Continue'
             }
           </button>
+        </div>
         </div>
       </div>
     </div>
