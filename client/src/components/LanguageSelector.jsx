@@ -60,7 +60,7 @@ function SearchableSelect({ options, value, onChange, placeholder }) {
   return (
     <div ref={containerRef} className="relative">
       <div
-        className="flex w-full cursor-text items-center gap-2 rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm shadow-sm transition-colors focus-within:border-brand-500 focus-within:ring-2 focus-within:ring-brand-500/20 dark:border-gray-600 dark:bg-gray-800"
+        className="flex w-full cursor-text items-center gap-2 rounded-lg border border-stone-300 bg-white px-3 py-2.5 text-sm shadow-sm transition-colors focus-within:border-brand-500 focus-within:ring-2 focus-within:ring-brand-500/20 dark:border-stone-600 dark:bg-stone-800"
         onClick={() => { setOpen(true); inputRef.current?.focus(); }}
       >
         {!open && value && (
@@ -71,21 +71,21 @@ function SearchableSelect({ options, value, onChange, placeholder }) {
         <input
           ref={inputRef}
           type="text"
-          className="min-w-[80px] flex-1 bg-transparent text-gray-900 outline-none placeholder:text-gray-400 dark:text-gray-100 dark:placeholder:text-gray-500"
+          className="min-w-[80px] flex-1 bg-transparent text-stone-900 outline-none placeholder:text-stone-400 dark:text-stone-100 dark:placeholder:text-stone-500"
           placeholder={open ? 'Type to search...' : (value ? '' : placeholder)}
           value={query}
           onChange={(e) => { setQuery(e.target.value); if (!open) setOpen(true); }}
           onFocus={() => setOpen(true)}
           onKeyDown={handleKeyDown}
         />
-        <svg className="h-4 w-4 flex-shrink-0 text-gray-400 dark:text-gray-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <svg className="h-4 w-4 flex-shrink-0 text-stone-400 dark:text-stone-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
           <polyline points="6 9 12 15 18 9" />
         </svg>
       </div>
       {open && (
-        <div className="absolute z-50 mt-1 max-h-60 w-full overflow-auto rounded-lg border border-gray-200 bg-white py-1 shadow-lg dark:border-gray-700 dark:bg-gray-800">
+        <div className="absolute z-50 mt-1 max-h-60 w-full overflow-auto rounded-lg border border-stone-200 bg-white py-1 shadow-lg dark:border-stone-700 dark:bg-stone-800">
           {filtered.length === 0 ? (
-            <div className="px-3 py-2 text-sm text-gray-400 dark:text-gray-500">No languages found</div>
+            <div className="px-3 py-2 text-sm text-stone-400 dark:text-stone-500">No languages found</div>
           ) : (
             filtered.map((opt, i) => (
               <button
@@ -93,7 +93,7 @@ function SearchableSelect({ options, value, onChange, placeholder }) {
                 className={`flex w-full items-center justify-between px-3 py-2 text-left text-sm transition-colors ${
                   i === highlightIndex
                     ? 'bg-brand-50 text-brand-700 dark:bg-brand-950 dark:text-brand-300'
-                    : 'text-gray-700 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-gray-700'
+                    : 'text-stone-700 hover:bg-stone-50 dark:text-stone-300 dark:hover:bg-stone-700'
                 }`}
                 onMouseEnter={() => setHighlightIndex(i)}
                 onClick={() => select(opt.code)}
@@ -179,7 +179,7 @@ function TagInput({ options, selected, onChange, placeholder }) {
   return (
     <div ref={containerRef} className="relative">
       <div
-        className="flex w-full cursor-text flex-wrap items-center gap-1.5 rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm shadow-sm transition-colors focus-within:border-brand-500 focus-within:ring-2 focus-within:ring-brand-500/20 dark:border-gray-600 dark:bg-gray-800"
+        className="flex w-full cursor-text flex-wrap items-center gap-1.5 rounded-lg border border-stone-300 bg-white px-3 py-2 text-sm shadow-sm transition-colors focus-within:border-brand-500 focus-within:ring-2 focus-within:ring-brand-500/20 dark:border-stone-600 dark:bg-stone-800"
         onClick={() => { setOpen(true); inputRef.current?.focus(); }}
       >
         {selected.map(code => (
@@ -202,7 +202,7 @@ function TagInput({ options, selected, onChange, placeholder }) {
         <input
           ref={inputRef}
           type="text"
-          className="min-w-[80px] flex-1 bg-transparent text-gray-900 outline-none placeholder:text-gray-400 dark:text-gray-100 dark:placeholder:text-gray-500"
+          className="min-w-[80px] flex-1 bg-transparent text-stone-900 outline-none placeholder:text-stone-400 dark:text-stone-100 dark:placeholder:text-stone-500"
           placeholder={selected.length === 0 ? placeholder : 'Add language...'}
           value={query}
           onChange={(e) => { setQuery(e.target.value); if (!open) setOpen(true); }}
@@ -211,9 +211,9 @@ function TagInput({ options, selected, onChange, placeholder }) {
         />
       </div>
       {open && (
-        <div className="absolute z-50 mt-1 max-h-60 w-full overflow-auto rounded-lg border border-gray-200 bg-white py-1 shadow-lg dark:border-gray-700 dark:bg-gray-800">
+        <div className="absolute z-50 mt-1 max-h-60 w-full overflow-auto rounded-lg border border-stone-200 bg-white py-1 shadow-lg dark:border-stone-700 dark:bg-stone-800">
           {available.length === 0 ? (
-            <div className="px-3 py-2 text-sm text-gray-400 dark:text-gray-500">
+            <div className="px-3 py-2 text-sm text-stone-400 dark:text-stone-500">
               {query ? 'No languages found' : 'All languages selected'}
             </div>
           ) : (
@@ -223,7 +223,7 @@ function TagInput({ options, selected, onChange, placeholder }) {
                 className={`w-full px-3 py-2 text-left text-sm transition-colors ${
                   i === highlightIndex
                     ? 'bg-brand-50 text-brand-700 dark:bg-brand-950 dark:text-brand-300'
-                    : 'text-gray-700 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-gray-700'
+                    : 'text-stone-700 hover:bg-stone-50 dark:text-stone-300 dark:hover:bg-stone-700'
                 }`}
                 onMouseEnter={() => setHighlightIndex(i)}
                 onClick={() => add(opt.code)}
@@ -290,22 +290,22 @@ export default function LanguageSelector({ fileName, detectedLanguage, thumbnail
             className="mx-auto mb-4 h-32 w-auto rounded-lg shadow-sm"
           />
         )}
-        <h1 className="mb-2 text-2xl font-bold text-gray-900 dark:text-gray-100">
+        <h1 className="mb-2 text-2xl font-bold text-stone-900 dark:text-stone-100">
           Language Settings
         </h1>
-        <p className="text-sm text-gray-500 dark:text-gray-400">
-          <span className="font-medium text-gray-700 dark:text-gray-300">{fileName}</span>
+        <p className="text-sm text-stone-500 dark:text-stone-400">
+          <span className="font-medium text-stone-700 dark:text-stone-300">{fileName}</span>
         </p>
       </div>
 
       {/* Settings card */}
-      <div className="w-full max-w-lg rounded-2xl border border-gray-200 bg-white p-8 shadow-sm dark:border-gray-700 dark:bg-gray-900">
+      <div className="w-full max-w-lg rounded-2xl border border-stone-200 bg-white p-8 shadow-sm dark:border-stone-700 dark:bg-stone-900">
         {/* Target language */}
         <div className="mb-6">
-          <label className="mb-2 block text-sm font-semibold text-gray-700 dark:text-gray-300">
+          <label className="mb-2 block text-sm font-semibold text-stone-700 dark:text-stone-300">
             Target Language
           </label>
-          <p className="mb-3 text-xs text-gray-500 dark:text-gray-400">
+          <p className="mb-3 text-xs text-stone-500 dark:text-stone-400">
             The spoken language in the audio. Subtitles will be generated in this language.
             {detectedLanguage && primaryLanguage === detectedLanguage && (
               <span className="ml-1 text-brand-600 dark:text-brand-400">(detected from audio track)</span>
@@ -320,7 +320,7 @@ export default function LanguageSelector({ fileName, detectedLanguage, thumbnail
         </div>
 
         {/* Divider */}
-        <div className="mb-6 border-t border-gray-100 dark:border-gray-800" />
+        <div className="mb-6 border-t border-stone-100 dark:border-stone-800" />
 
         {/* Additional languages toggle */}
         {!showAdditional ? (
@@ -335,19 +335,19 @@ export default function LanguageSelector({ fileName, detectedLanguage, thumbnail
               </svg>
               Add translated subtitles in other languages
             </button>
-            <p className="mt-2 text-xs text-gray-400 dark:text-gray-500">
+            <p className="mt-2 text-xs text-stone-400 dark:text-stone-500">
               In addition to subtitles in the target language above, get translated subtitles at half credit cost per language.
             </p>
           </div>
         ) : (
           <div className="mb-6">
             <div className="mb-2 flex items-center justify-between">
-              <label className="text-sm font-semibold text-gray-700 dark:text-gray-300">
+              <label className="text-sm font-semibold text-stone-700 dark:text-stone-300">
                 Additional Languages
               </label>
               <button
                 onClick={() => { setShowAdditional(false); setAdditionalLanguages([]); }}
-                className="text-xs text-gray-400 transition-colors hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300"
+                className="text-xs text-stone-400 transition-colors hover:text-stone-600 dark:text-stone-500 dark:hover:text-stone-300"
               >
                 Remove
               </button>
@@ -378,7 +378,7 @@ export default function LanguageSelector({ fileName, detectedLanguage, thumbnail
             {additionalLanguages.length > 0 && (
               <button
                 onClick={() => setAdditionalLanguages([])}
-                className="mt-3 text-xs text-gray-400 transition-colors hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300"
+                className="mt-3 text-xs text-stone-400 transition-colors hover:text-stone-600 dark:text-stone-500 dark:hover:text-stone-300"
               >
                 Clear all
               </button>

@@ -88,14 +88,14 @@ export default function JobProgress({ job, error, thumbnailUrl, onRetry }) {
             className="mx-auto mb-4 h-32 w-auto rounded-lg shadow-sm"
           />
         )}
-        <h1 className="mb-2 text-2xl font-bold text-gray-900 dark:text-gray-100">
+        <h1 className="mb-2 text-2xl font-bold text-stone-900 dark:text-stone-100">
           {isFailed ? 'Something Went Wrong' : 'Processing Your Video'}
         </h1>
       </div>
 
       {/* Status card */}
-      <div className={`w-full max-w-lg rounded-2xl border bg-white p-8 shadow-sm dark:bg-gray-900 ${
-        isFailed ? 'border-red-200 dark:border-red-900' : 'border-gray-200 dark:border-gray-700'
+      <div className={`w-full max-w-lg rounded-2xl border bg-white p-8 shadow-sm dark:bg-stone-900 ${
+        isFailed ? 'border-red-200 dark:border-red-900' : 'border-stone-200 dark:border-stone-700'
       }`}>
         <div className="flex flex-col items-center text-center">
           {/* Animated indicator */}
@@ -119,12 +119,12 @@ export default function JobProgress({ job, error, thumbnailUrl, onRetry }) {
 
           {/* Status label */}
           <h2 className={`mb-2 text-lg font-semibold ${
-            isFailed ? 'text-red-700 dark:text-red-400' : 'text-gray-900 dark:text-gray-100'
+            isFailed ? 'text-red-700 dark:text-red-400' : 'text-stone-900 dark:text-stone-100'
           }`}>
             {config.label}
           </h2>
 
-          <p className="mb-6 text-sm text-gray-500 dark:text-gray-400">
+          <p className="mb-6 text-sm text-stone-500 dark:text-stone-400">
             {config.description}
           </p>
 
@@ -153,7 +153,7 @@ export default function JobProgress({ job, error, thumbnailUrl, onRetry }) {
                             ? 'bg-brand-600 text-white'
                             : isCurrent
                               ? 'bg-brand-100 text-brand-700 ring-2 ring-brand-600 dark:bg-brand-950 dark:text-brand-300'
-                              : 'bg-gray-100 text-gray-400 dark:bg-gray-800 dark:text-gray-500'
+                              : 'bg-stone-100 text-stone-400 dark:bg-stone-800 dark:text-stone-500'
                           }
                         `}>
                           {isComplete ? (
@@ -165,14 +165,14 @@ export default function JobProgress({ job, error, thumbnailUrl, onRetry }) {
                           )}
                         </div>
                         <span className={`mt-1 text-xs ${
-                          isComplete || isCurrent ? 'text-gray-700 font-medium dark:text-gray-300' : 'text-gray-400 dark:text-gray-500'
+                          isComplete || isCurrent ? 'text-stone-700 font-medium dark:text-stone-300' : 'text-stone-400 dark:text-stone-500'
                         }`}>
                           {step}
                         </span>
                       </div>
                       {i < 3 && (
                         <div className={`mx-1 h-0.5 flex-1 rounded-full ${
-                          isComplete ? 'bg-brand-600' : 'bg-gray-200 dark:bg-gray-700'
+                          isComplete ? 'bg-brand-600' : 'bg-stone-200 dark:bg-stone-700'
                         }`} />
                       )}
                     </div>
@@ -191,7 +191,7 @@ export default function JobProgress({ job, error, thumbnailUrl, onRetry }) {
 
           {/* Privacy note (processing) */}
           {!isFailed && (
-            <div className="w-full rounded-lg bg-gray-50 px-4 py-3 text-xs text-gray-500 dark:bg-gray-800 dark:text-gray-400">
+            <div className="w-full rounded-lg bg-stone-50 px-4 py-3 text-xs text-stone-500 dark:bg-stone-800 dark:text-stone-400">
               Your audio is being processed securely. You can leave this page open -- we will show your results when ready.
             </div>
           )}

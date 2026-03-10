@@ -39,22 +39,19 @@ export default function SharedResultPage() {
   return (
     <div className="flex min-h-screen flex-col">
       {/* Minimal header */}
-      <header className="sticky top-0 z-40 border-b border-gray-200 bg-white/80 backdrop-blur-md dark:border-gray-700 dark:bg-gray-900/80">
+      <header className="sticky top-0 z-40 border-b border-stone-200 bg-white/80 backdrop-blur-md dark:border-stone-700 dark:bg-stone-900/80">
         <div className="mx-auto flex h-14 max-w-5xl items-center justify-between px-4">
-          <a href="/" className="flex items-center gap-2 text-lg font-bold text-gray-900 transition-colors hover:text-brand-600 dark:text-gray-100">
+          <a href="/" className="flex items-center gap-2 text-lg font-bold text-stone-900 transition-colors hover:text-brand-600 dark:text-stone-100">
             <svg className="h-6 w-6 text-brand-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M12 2L2 7l10 5 10-5-10-5z" />
               <path d="M2 17l10 5 10-5" />
               <path d="M2 12l10 5 10-5" />
             </svg>
             SyncScribe
-            <span className="rounded-md bg-brand-100 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-brand-600 dark:bg-brand-950 dark:text-brand-300">
-              Beta
-            </span>
           </a>
           <button
             onClick={toggle}
-            className="rounded-lg p-2 text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-600 dark:text-gray-500 dark:hover:bg-gray-800 dark:hover:text-gray-300"
+            className="rounded-lg p-2 text-stone-400 transition-colors hover:bg-stone-100 hover:text-stone-600 dark:text-stone-500 dark:hover:bg-stone-800 dark:hover:text-stone-300"
             title={`Theme: ${theme}`}
           >
             {theme === 'dark' ? (
@@ -92,7 +89,7 @@ export default function SharedResultPage() {
                 <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                 <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
               </svg>
-              <p className="mt-4 text-sm text-gray-500 dark:text-gray-400">Loading shared subtitles...</p>
+              <p className="mt-4 text-sm text-stone-500 dark:text-stone-400">Loading shared subtitles...</p>
             </div>
           )}
 
@@ -104,23 +101,23 @@ export default function SharedResultPage() {
                   <polyline points="12 6 12 12 16 14" />
                 </svg>
               </div>
-              <h1 className="mb-2 text-2xl font-bold text-gray-900 dark:text-gray-100">Link Expired</h1>
-              <p className="mb-6 max-w-md text-center text-sm text-gray-500 dark:text-gray-400">{error.message}</p>
+              <h1 className="mb-2 text-2xl font-bold text-stone-900 dark:text-stone-100">Link Expired</h1>
+              <p className="mb-6 max-w-md text-center text-sm text-stone-500 dark:text-stone-400">{error.message}</p>
               <a href="/" className="btn-primary">Go to SyncScribe</a>
             </div>
           )}
 
           {!loading && error && error.status !== 410 && (
             <div className="flex flex-col items-center py-20">
-              <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-800">
-                <svg className="h-8 w-8 text-gray-400 dark:text-gray-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-stone-100 dark:bg-stone-800">
+                <svg className="h-8 w-8 text-stone-400 dark:text-stone-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <circle cx="12" cy="12" r="10" />
                   <line x1="12" y1="8" x2="12" y2="12" />
                   <line x1="12" y1="16" x2="12.01" y2="16" />
                 </svg>
               </div>
-              <h1 className="mb-2 text-2xl font-bold text-gray-900 dark:text-gray-100">Not Found</h1>
-              <p className="mb-6 max-w-md text-center text-sm text-gray-500 dark:text-gray-400">{error.message}</p>
+              <h1 className="mb-2 text-2xl font-bold text-stone-900 dark:text-stone-100">Not Found</h1>
+              <p className="mb-6 max-w-md text-center text-sm text-stone-500 dark:text-stone-400">{error.message}</p>
               <a href="/" className="btn-primary">Go to SyncScribe</a>
             </div>
           )}
@@ -139,17 +136,17 @@ export default function SharedResultPage() {
         </div>
       </main>
 
-      <footer className="border-t border-gray-200 bg-white/60 backdrop-blur-sm dark:border-gray-700 dark:bg-gray-900/60">
-        <div className="mx-auto flex max-w-5xl flex-wrap items-center justify-center gap-x-8 gap-y-2 px-4 py-5 text-sm text-gray-500 dark:text-gray-400">
-          <a href="mailto:syncscribe@1379.tech" className="transition-colors hover:text-gray-700 dark:hover:text-gray-300">
+      <footer className="border-t border-stone-200 bg-white/60 backdrop-blur-sm dark:border-stone-700 dark:bg-stone-900/60">
+        <div className="mx-auto flex max-w-5xl flex-wrap items-center justify-center gap-x-8 gap-y-2 px-4 py-5 text-sm text-stone-500 dark:text-stone-400">
+          <a href="mailto:syncscribe@1379.tech" className="transition-colors hover:text-stone-700 dark:hover:text-stone-300">
             Support
           </a>
-          <span className="hidden sm:inline text-gray-300 dark:text-gray-600">|</span>
-          <a href="mailto:syncscribe@1379.tech?subject=API%20%2F%20Enterprise%20Inquiry" className="transition-colors hover:text-gray-700 dark:hover:text-gray-300">
+          <span className="hidden sm:inline text-stone-300 dark:text-stone-600">|</span>
+          <a href="mailto:syncscribe@1379.tech?subject=API%20%2F%20Enterprise%20Inquiry" className="transition-colors hover:text-stone-700 dark:hover:text-stone-300">
             API / Enterprise
           </a>
         </div>
-        <div className="border-t border-gray-100 py-3 text-center text-xs text-gray-400 dark:border-gray-800 dark:text-gray-500">
+        <div className="border-t border-stone-100 py-3 text-center text-xs text-stone-400 dark:border-stone-800 dark:text-stone-500">
           <p>SyncScribe Beta &mdash; AI-powered subtitle generation</p>
           <p className="mt-1">Subtitles are generated by AI and may contain errors. Please review before distributing.</p>
         </div>

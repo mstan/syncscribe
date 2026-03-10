@@ -125,11 +125,11 @@ export default function BuyCreditsModal({ onClose }) {
       />
 
       {/* Modal */}
-      <div className="relative w-full max-w-2xl rounded-2xl bg-white p-8 shadow-2xl dark:bg-gray-900 dark:ring-1 dark:ring-gray-700">
+      <div className="relative w-full max-w-2xl rounded-2xl bg-white p-8 shadow-2xl dark:bg-stone-900 dark:ring-1 dark:ring-stone-700">
         {/* Close button */}
         <button
           onClick={onClose}
-          className="absolute right-4 top-4 rounded-lg p-1 text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-600 dark:text-gray-500 dark:hover:bg-gray-800 dark:hover:text-gray-300"
+          className="absolute right-4 top-4 rounded-lg p-1 text-stone-400 transition-colors hover:bg-stone-100 hover:text-stone-600 dark:text-stone-500 dark:hover:bg-stone-800 dark:hover:text-stone-300"
         >
           <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <line x1="18" y1="6" x2="6" y2="18" />
@@ -139,10 +139,10 @@ export default function BuyCreditsModal({ onClose }) {
 
         {/* Header */}
         <div className="mb-8 text-center">
-          <h2 className="mb-2 text-xl font-bold text-gray-900 dark:text-gray-100">
+          <h2 className="mb-2 text-xl font-bold text-stone-900 dark:text-stone-100">
             Buy Credits
           </h2>
-          <p className="text-sm text-gray-500 dark:text-gray-400">
+          <p className="text-sm text-stone-500 dark:text-stone-400">
             Credits are based on minutes of audio processed. Choose a pack below.
           </p>
         </div>
@@ -178,7 +178,7 @@ export default function BuyCreditsModal({ onClose }) {
                     transition-all duration-200
                     ${isBestValue
                       ? 'border-brand-500 bg-brand-50/50 shadow-md hover:shadow-lg dark:bg-brand-950/50'
-                      : 'border-gray-200 bg-white hover:border-gray-300 hover:shadow-md dark:border-gray-700 dark:bg-gray-900 dark:hover:border-gray-600'
+                      : 'border-stone-200 bg-white hover:border-stone-300 hover:shadow-md dark:border-stone-700 dark:bg-stone-900 dark:hover:border-stone-600'
                     }
                     ${purchasing !== null && !isLoading ? 'opacity-50' : ''}
                     disabled:cursor-not-allowed
@@ -194,20 +194,20 @@ export default function BuyCreditsModal({ onClose }) {
                   )}
 
                   {/* Pack name */}
-                  <h3 className="mb-1 text-base font-semibold text-gray-900 dark:text-gray-100">
+                  <h3 className="mb-1 text-base font-semibold text-stone-900 dark:text-stone-100">
                     {pack.name}
                   </h3>
 
                   {/* Price */}
                   <div className="mb-3">
-                    <span className="text-3xl font-bold text-gray-900 dark:text-gray-100">
+                    <span className="text-3xl font-bold text-stone-900 dark:text-stone-100">
                       {formatPrice(pack.price_cents)}
                     </span>
                   </div>
 
                   {/* Minutes */}
-                  <div className="mb-3 flex items-center gap-1.5 text-sm font-medium text-gray-700 dark:text-gray-300">
-                    <svg className="h-4 w-4 text-gray-400 dark:text-gray-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <div className="mb-3 flex items-center gap-1.5 text-sm font-medium text-stone-700 dark:text-stone-300">
+                    <svg className="h-4 w-4 text-stone-400 dark:text-stone-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                       <circle cx="12" cy="12" r="10" />
                       <polyline points="12 6 12 12 16 14" />
                     </svg>
@@ -215,7 +215,7 @@ export default function BuyCreditsModal({ onClose }) {
                   </div>
 
                   {/* Price per minute */}
-                  <p className="text-xs text-gray-400 dark:text-gray-500">
+                  <p className="text-xs text-stone-400 dark:text-stone-500">
                     {pricePerMinute(pack.price_cents, pack.minutes_amount)}&cent; / min
                   </p>
 
@@ -235,11 +235,11 @@ export default function BuyCreditsModal({ onClose }) {
         )}
 
         {/* Promo code section */}
-        <div className="mt-6 border-t border-gray-200 pt-5 dark:border-gray-700">
+        <div className="mt-6 border-t border-stone-200 pt-5 dark:border-stone-700">
           {!promoOpen ? (
             <button
               onClick={() => setPromoOpen(true)}
-              className="mx-auto block text-sm text-gray-500 underline decoration-gray-300 underline-offset-2 transition-colors hover:text-gray-700 dark:text-gray-400 dark:decoration-gray-600 dark:hover:text-gray-200"
+              className="mx-auto block text-sm text-stone-500 underline decoration-stone-300 underline-offset-2 transition-colors hover:text-stone-700 dark:text-stone-400 dark:decoration-stone-600 dark:hover:text-stone-200"
             >
               Have a promo code?
             </button>
@@ -261,7 +261,7 @@ export default function BuyCreditsModal({ onClose }) {
                   value={promoCode}
                   onChange={(e) => setPromoCode(e.target.value)}
                   placeholder="Enter promo code"
-                  className="flex-1 rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 placeholder-gray-400 focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100 dark:placeholder-gray-500 dark:focus:border-brand-400 dark:focus:ring-brand-400"
+                  className="flex-1 rounded-lg border border-stone-300 bg-white px-3 py-2 text-sm text-stone-900 placeholder-stone-400 focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500 dark:border-stone-600 dark:bg-stone-800 dark:text-stone-100 dark:placeholder-stone-500 dark:focus:border-brand-400 dark:focus:ring-brand-400"
                   disabled={promoLoading}
                 />
                 <button
@@ -277,7 +277,7 @@ export default function BuyCreditsModal({ onClose }) {
         </div>
 
         {/* Footer note */}
-        <p className="mt-6 text-center text-xs text-gray-400 dark:text-gray-500">
+        <p className="mt-6 text-center text-xs text-stone-400 dark:text-stone-500">
           Payments are processed securely through Stripe. Credits never expire.
         </p>
       </div>

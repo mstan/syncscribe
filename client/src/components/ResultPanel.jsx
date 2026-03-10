@@ -36,22 +36,22 @@ function DownloadButton({ jobId, language, format, label, shared = false }) {
         className="btn-secondary w-full justify-start gap-3 !px-4 !py-3"
       >
         {loading ? (
-          <svg className="h-5 w-5 animate-spin text-gray-400 dark:text-gray-500" viewBox="0 0 24 24" fill="none">
+          <svg className="h-5 w-5 animate-spin text-stone-400 dark:text-stone-500" viewBox="0 0 24 24" fill="none">
             <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
             <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
           </svg>
         ) : (
-          <svg className="h-5 w-5 text-gray-400 dark:text-gray-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <svg className="h-5 w-5 text-stone-400 dark:text-stone-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
             <polyline points="7 10 12 15 17 10" />
             <line x1="12" y1="15" x2="12" y2="3" />
           </svg>
         )}
         <div className="text-left">
-          <div className="text-sm font-semibold text-gray-900 dark:text-gray-100">
+          <div className="text-sm font-semibold text-stone-900 dark:text-stone-100">
             {label}
           </div>
-          <div className="text-xs text-gray-500 dark:text-gray-400">
+          <div className="text-xs text-stone-500 dark:text-stone-400">
             .{format} file
           </div>
         </div>
@@ -85,7 +85,7 @@ function VttLink({ jobId, language, shared = false }) {
     <button
       onClick={handleDownload}
       disabled={loading}
-      className="mt-1.5 text-xs text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300 transition-colors"
+      className="mt-1.5 text-xs text-stone-400 hover:text-stone-600 dark:text-stone-500 dark:hover:text-stone-300 transition-colors"
     >
       {loading ? 'Downloading...' : 'Also available as .vtt (WebVTT)'}
     </button>
@@ -366,16 +366,16 @@ export default function ResultPanel({ job, onReset, fileName, thumbnailUrl, file
             <polyline points="22 4 12 14.01 9 11.01" />
           </svg>
         </div>
-        <h1 className="mb-2 text-2xl font-bold text-gray-900 dark:text-gray-100">
+        <h1 className="mb-2 text-2xl font-bold text-stone-900 dark:text-stone-100">
           Subtitles Ready
         </h1>
-        <p className="text-sm text-gray-500 dark:text-gray-400">
+        <p className="text-sm text-stone-500 dark:text-stone-400">
           Your subtitles have been generated successfully. Download them below.
         </p>
       </div>
 
       {/* Downloads card */}
-      <div className="w-full max-w-lg rounded-2xl border border-gray-200 bg-white p-8 shadow-sm dark:border-gray-700 dark:bg-gray-900">
+      <div className="w-full max-w-lg rounded-2xl border border-stone-200 bg-white p-8 shadow-sm dark:border-stone-700 dark:bg-stone-900">
 
         {/* ── Bulk actions (top) ─────────────────────────────────── */}
 
@@ -472,7 +472,7 @@ export default function ResultPanel({ job, onReset, fileName, thumbnailUrl, file
         )}
 
         {!shared && !file && embedState === 'idle' && (
-          <p className="mb-4 text-center text-xs text-gray-400 dark:text-gray-500">
+          <p className="mb-4 text-center text-xs text-stone-400 dark:text-stone-500">
             Embed will prompt you to re-select your video file.
           </p>
         )}
@@ -489,14 +489,14 @@ export default function ResultPanel({ job, onReset, fileName, thumbnailUrl, file
         )}
 
         {/* ── Per-language individual downloads ─────────────────── */}
-        <div className="border-t border-gray-200 pt-6 dark:border-gray-700">
-          <p className="mb-4 text-xs font-medium uppercase tracking-wider text-gray-400 dark:text-gray-500">
+        <div className="border-t border-stone-200 pt-6 dark:border-stone-700">
+          <p className="mb-4 text-xs font-medium uppercase tracking-wider text-stone-400 dark:text-stone-500">
             Individual Files
           </p>
           {languages.map((lang, index) => (
-            <div key={lang} className={index > 0 ? 'mt-4 border-t border-gray-100 pt-4 dark:border-gray-800' : ''}>
+            <div key={lang} className={index > 0 ? 'mt-4 border-t border-stone-100 pt-4 dark:border-stone-800' : ''}>
               {languages.length > 1 && (
-                <h3 className="mb-3 flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-300">
+                <h3 className="mb-3 flex items-center gap-2 text-sm font-semibold text-stone-700 dark:text-stone-300">
                   {getLangName(lang)}
                   {index > 0 && (
                     <span className="rounded-full bg-green-100 px-2 py-0.5 text-xs font-medium text-green-700 dark:bg-green-950 dark:text-green-400">
@@ -573,8 +573,8 @@ export default function ResultPanel({ job, onReset, fileName, thumbnailUrl, file
 
         {/* Job info */}
         {job && (
-          <div className="mt-6 rounded-lg bg-gray-50 px-4 py-3 dark:bg-gray-800">
-            <div className="flex flex-wrap gap-x-6 gap-y-1 text-xs text-gray-500 dark:text-gray-400">
+          <div className="mt-6 rounded-lg bg-stone-50 px-4 py-3 dark:bg-stone-800">
+            <div className="flex flex-wrap gap-x-6 gap-y-1 text-xs text-stone-500 dark:text-stone-400">
               {job.audio_seconds && (
                 <span>Duration: {Math.ceil(job.audio_seconds / 60)} min</span>
               )}

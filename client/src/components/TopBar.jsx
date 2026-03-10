@@ -24,19 +24,16 @@ export default function TopBar({ user, isAuthenticated, balance, onBuyCredits, o
   }, [dropdownOpen]);
 
   return (
-    <header className="sticky top-0 z-40 border-b border-gray-200 bg-white/80 backdrop-blur-md dark:border-gray-700 dark:bg-gray-900/80">
+    <header className="sticky top-0 z-40 border-b border-stone-200 bg-white/80 backdrop-blur-md dark:border-stone-700 dark:bg-stone-900/80">
       <div className="mx-auto flex h-14 max-w-5xl items-center justify-between px-4">
         {/* Logo / brand */}
-        <a href="/" className="flex items-center gap-2 text-lg font-bold text-gray-900 transition-colors hover:text-brand-600 dark:text-gray-100">
+        <a href="/" className="flex items-center gap-2 text-lg font-bold text-stone-900 transition-colors hover:text-brand-600 dark:text-stone-100">
           <svg className="h-6 w-6 text-brand-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <path d="M12 2L2 7l10 5 10-5-10-5z" />
             <path d="M2 17l10 5 10-5" />
             <path d="M2 12l10 5 10-5" />
           </svg>
           SyncScribe
-          <span className="rounded-md bg-brand-100 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-brand-600 dark:bg-brand-950 dark:text-brand-300">
-            Beta
-          </span>
         </a>
 
         {/* Right side controls */}
@@ -44,7 +41,7 @@ export default function TopBar({ user, isAuthenticated, balance, onBuyCredits, o
           {/* Theme toggle */}
           <button
             onClick={toggle}
-            className="rounded-lg p-2 text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-600 dark:text-gray-500 dark:hover:bg-gray-800 dark:hover:text-gray-300"
+            className="rounded-lg p-2 text-stone-400 transition-colors hover:bg-stone-100 hover:text-stone-600 dark:text-stone-500 dark:hover:bg-stone-800 dark:hover:text-stone-300"
             title={`Theme: ${theme}`}
           >
             {theme === 'dark' ? (
@@ -97,14 +94,14 @@ export default function TopBar({ user, isAuthenticated, balance, onBuyCredits, o
               <div className="relative" ref={dropdownRef}>
                 <button
                   onClick={() => setDropdownOpen(!dropdownOpen)}
-                  className="flex items-center gap-2 rounded-full p-1 transition-colors hover:bg-gray-100 dark:hover:bg-gray-800"
+                  className="flex items-center gap-2 rounded-full p-1 transition-colors hover:bg-stone-100 dark:hover:bg-stone-800"
                   title={user?.email || 'Account'}
                 >
                   {user?.picture ? (
                     <img
                       src={user.picture}
                       alt={user.name || 'User'}
-                      className="h-8 w-8 rounded-full border border-gray-200 dark:border-gray-700"
+                      className="h-8 w-8 rounded-full border border-stone-200 dark:border-stone-700"
                       referrerPolicy="no-referrer"
                     />
                   ) : (
@@ -112,25 +109,25 @@ export default function TopBar({ user, isAuthenticated, balance, onBuyCredits, o
                       {(user?.name || user?.email || 'U').charAt(0).toUpperCase()}
                     </div>
                   )}
-                  <svg className="h-4 w-4 text-gray-400 dark:text-gray-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <svg className="h-4 w-4 text-stone-400 dark:text-stone-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                     <polyline points="6 9 12 15 18 9" />
                   </svg>
                 </button>
 
                 {dropdownOpen && (
-                  <div className="absolute right-0 mt-2 w-56 rounded-lg border border-gray-200 bg-white py-1 shadow-lg dark:border-gray-700 dark:bg-gray-900">
-                    <div className="border-b border-gray-100 px-4 py-3 dark:border-gray-800">
-                      <p className="truncate text-sm font-medium text-gray-900 dark:text-gray-100">
+                  <div className="absolute right-0 mt-2 w-56 rounded-lg border border-stone-200 bg-white py-1 shadow-lg dark:border-stone-700 dark:bg-stone-900">
+                    <div className="border-b border-stone-100 px-4 py-3 dark:border-stone-800">
+                      <p className="truncate text-sm font-medium text-stone-900 dark:text-stone-100">
                         {user?.name || 'User'}
                       </p>
-                      <p className="truncate text-xs text-gray-500 dark:text-gray-400">
+                      <p className="truncate text-xs text-stone-500 dark:text-stone-400">
                         {user?.email}
                       </p>
                     </div>
                     {/* Show credits in dropdown on small screens */}
                     {balance !== null && (
-                      <div className="border-b border-gray-100 px-4 py-2 sm:hidden dark:border-gray-800">
-                        <p className="text-sm text-gray-600 dark:text-gray-400">
+                      <div className="border-b border-stone-100 px-4 py-2 sm:hidden dark:border-stone-800">
+                        <p className="text-sm text-stone-600 dark:text-stone-400">
                           Credits: <span className="font-semibold text-brand-700 dark:text-brand-300">{balance} min</span>
                         </p>
                       </div>
@@ -140,9 +137,9 @@ export default function TopBar({ user, isAuthenticated, balance, onBuyCredits, o
                         setDropdownOpen(false);
                         onLogout();
                       }}
-                      className="flex w-full items-center gap-2 px-4 py-2.5 text-sm text-gray-700 transition-colors hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-gray-800"
+                      className="flex w-full items-center gap-2 px-4 py-2.5 text-sm text-stone-700 transition-colors hover:bg-stone-50 dark:text-stone-300 dark:hover:bg-stone-800"
                     >
-                      <svg className="h-4 w-4 text-gray-400 dark:text-gray-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <svg className="h-4 w-4 text-stone-400 dark:text-stone-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                         <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
                         <polyline points="16 17 21 12 16 7" />
                         <line x1="21" y1="12" x2="9" y2="12" />
