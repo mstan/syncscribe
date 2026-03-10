@@ -85,7 +85,7 @@ export default function JobProgress({ job, error, thumbnailUrl, onRetry }) {
           <img
             src={thumbnailUrl}
             alt=""
-            className="mx-auto mb-4 h-32 w-auto rounded-lg shadow-sm"
+            className="mx-auto mb-4 h-44 w-auto rounded-xl border border-stone-200 shadow-lg dark:border-stone-700"
           />
         )}
         <h1 className="mb-2 text-2xl font-bold text-stone-900 dark:text-stone-100">
@@ -94,7 +94,7 @@ export default function JobProgress({ job, error, thumbnailUrl, onRetry }) {
       </div>
 
       {/* Status card */}
-      <div className={`w-full max-w-lg rounded-2xl border bg-white p-8 shadow-sm dark:bg-stone-900 ${
+      <div className={`w-full max-w-2xl rounded-2xl border bg-white p-8 shadow-sm dark:bg-stone-900 ${
         isFailed ? 'border-red-200 dark:border-red-900' : 'border-stone-200 dark:border-stone-700'
       }`}>
         <div className="flex flex-col items-center text-center">

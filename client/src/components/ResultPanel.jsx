@@ -7,7 +7,7 @@ const { getLangName, getIso3 } = langConfig;
 /**
  * Single download button component.
  */
-function DownloadButton({ jobId, language, format, label, shared = false }) {
+function DownloadButton({ jobId, language, format, label, shared = false, primary = false }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
@@ -27,6 +27,35 @@ function DownloadButton({ jobId, language, format, label, shared = false }) {
       setLoading(false);
     }
   }, [jobId, language, format, shared]);
+
+  if (primary) {
+    return (
+      <div>
+        <button
+          onClick={handleDownload}
+          disabled={loading}
+          className="btn-primary w-full justify-center gap-2.5 !py-3.5 text-base"
+        >
+          {loading ? (
+            <svg className="h-5 w-5 animate-spin text-white/60" viewBox="0 0 24 24" fill="none">
+              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+            </svg>
+          ) : (
+            <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+              <polyline points="7 10 12 15 17 10" />
+              <line x1="12" y1="15" x2="12" y2="3" />
+            </svg>
+          )}
+          <span className="font-semibold">{label}</span>
+        </button>
+        {error && (
+          <p className="mt-1 text-xs text-red-600 dark:text-red-400">{error}</p>
+        )}
+      </div>
+    );
+  }
 
   return (
     <div>
@@ -357,27 +386,29 @@ export default function ResultPanel({ job, onReset, fileName, thumbnailUrl, file
           <img
             src={thumbnailUrl}
             alt=""
-            className="mx-auto mb-4 h-32 w-auto rounded-lg shadow-sm"
+            className="mx-auto mb-4 h-44 w-auto rounded-xl border border-stone-200 shadow-lg dark:border-stone-700"
           />
         )}
-        <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-green-100 dark:bg-green-950">
-          <svg className="h-8 w-8 text-green-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <h1 className="mb-2 flex items-center justify-center gap-2 text-2xl font-bold text-stone-900 dark:text-stone-100">
+          <svg className="h-6 w-6 text-green-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
             <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
             <polyline points="22 4 12 14.01 9 11.01" />
           </svg>
-        </div>
-        <h1 className="mb-2 text-2xl font-bold text-stone-900 dark:text-stone-100">
           Subtitles Ready
         </h1>
         <p className="text-sm text-stone-500 dark:text-stone-400">
-          Your subtitles have been generated successfully. Download them below.
+          {job?.audio_seconds
+            ? <>
+                {Math.ceil(job.audio_seconds / 60)} min duration
+                {!shared && job?.minutes_charged && <> &middot; {job.minutes_charged} credits used</>}
+              </>
+            : 'Your subtitles have been generated successfully.'
+          }
         </p>
       </div>
 
       {/* Downloads card */}
-      <div className="w-full max-w-lg rounded-2xl border border-stone-200 bg-white p-8 shadow-sm dark:border-stone-700 dark:bg-stone-900">
-
-        {/* ── Bulk actions (top) ─────────────────────────────────── */}
+      <div className="w-full max-w-2xl rounded-2xl border border-stone-200 bg-white p-8 shadow-sm dark:border-stone-700 dark:bg-stone-900">
 
         {/* Embed progress overlay */}
         {(embedState === 'loading' || embedState === 'embedding') ? (
@@ -421,60 +452,101 @@ export default function ResultPanel({ job, onReset, fileName, thumbnailUrl, file
           </div>
         ) : null}
 
-        {/* Bulk action buttons — stacked full-width */}
+        {/* Primary download action */}
         {(embedState === 'idle' || embedState === 'done' || embedState === 'error') && (
-          <div className="mb-6 flex flex-col gap-3">
-            {/* Download All (only shown for multi-language jobs) */}
-            {languages.length > 1 && (
-              <button
-                onClick={handleDownloadAll}
-                disabled={downloadAllLoading}
-                className="btn-primary w-full justify-center gap-2.5 !py-3.5 text-base"
-              >
-                {downloadAllLoading ? (
-                  <Spinner className="h-5 w-5 text-white/60" />
-                ) : (
-                  <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-                    <polyline points="7 10 12 15 17 10" />
-                    <line x1="12" y1="15" x2="12" y2="3" />
-                  </svg>
+          <div className="mb-6">
+            {languages.length > 1 ? (
+              <>
+                <button
+                  onClick={handleDownloadAll}
+                  disabled={downloadAllLoading}
+                  className="btn-primary w-full justify-center gap-2.5 !py-3.5 text-base"
+                >
+                  {downloadAllLoading ? (
+                    <Spinner className="h-5 w-5 text-white/60" />
+                  ) : (
+                    <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                      <polyline points="7 10 12 15 17 10" />
+                      <line x1="12" y1="15" x2="12" y2="3" />
+                    </svg>
+                  )}
+                  <span className="font-semibold">Download All Subtitles</span>
+                </button>
+                {downloadAllError && (
+                  <p className="mt-2 text-xs text-red-600 dark:text-red-400">{downloadAllError}</p>
                 )}
-                <span className="font-semibold">Download All Subtitles</span>
-              </button>
-            )}
-
-            {/* Embed in Video (hidden on shared pages) */}
-            {!shared && (
-              <button
-                onClick={() => handleEmbed()}
-                disabled={embedState === 'loading' || embedState === 'embedding'}
-                className="w-full justify-center gap-2.5 !py-3.5 text-base inline-flex items-center rounded-lg border-0 font-semibold transition-colors bg-green-600 text-white hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18" />
-                  <line x1="7" y1="2" x2="7" y2="22" />
-                  <line x1="17" y1="2" x2="17" y2="22" />
-                  <line x1="2" y1="12" x2="22" y2="12" />
-                  <line x1="2" y1="7" x2="7" y2="7" />
-                  <line x1="2" y1="17" x2="7" y2="17" />
-                  <line x1="17" y1="7" x2="22" y2="7" />
-                  <line x1="17" y1="17" x2="22" y2="17" />
-                </svg>
-                <span>{file ? 'Embed Subtitles in Video' : 'Embed Subtitles in Video...'}</span>
-              </button>
+              </>
+            ) : (
+              <>
+                <DownloadButton
+                  jobId={job.id}
+                  language={languages[0]}
+                  format="srt"
+                  label="Download SRT"
+                  shared={shared}
+                  primary
+                />
+                <VttLink jobId={job.id} language={languages[0]} shared={shared} />
+              </>
             )}
           </div>
         )}
 
-        {downloadAllError && (
-          <p className="mb-4 text-xs text-red-600 dark:text-red-400">{downloadAllError}</p>
+        {/* Per-language individual downloads (multi-lang only) */}
+        {languages.length > 1 && (
+          <div className="mb-6 border-t border-stone-200 pt-6 dark:border-stone-700">
+            {languages.map((lang, index) => (
+              <div key={lang} className={index > 0 ? 'mt-4 border-t border-stone-100 pt-4 dark:border-stone-800' : ''}>
+                <h3 className="mb-3 flex items-center gap-2 text-sm font-semibold text-stone-700 dark:text-stone-300">
+                  {getLangName(lang)}
+                  {index > 0 && (
+                    <span className="rounded-full bg-green-100 px-2 py-0.5 text-xs font-medium text-green-700 dark:bg-green-950 dark:text-green-400">
+                      translation
+                    </span>
+                  )}
+                </h3>
+                <div>
+                  <DownloadButton
+                    jobId={job.id}
+                    language={lang}
+                    format="srt"
+                    label="Download SRT"
+                    shared={shared}
+                  />
+                  <VttLink jobId={job.id} language={lang} shared={shared} />
+                </div>
+              </div>
+            ))}
+          </div>
         )}
 
-        {!shared && !file && embedState === 'idle' && (
-          <p className="mb-4 text-center text-xs text-stone-400 dark:text-stone-500">
-            Embed will prompt you to re-select your video file.
-          </p>
+        {/* Embed Subtitles section */}
+        {!shared && (embedState === 'idle' || embedState === 'done' || embedState === 'error') && (
+          <div className="border-t border-stone-200 pt-6 dark:border-stone-700">
+            <button
+              onClick={() => handleEmbed()}
+              disabled={embedState === 'loading' || embedState === 'embedding'}
+              className="btn-secondary w-full justify-center gap-2.5 !py-3"
+            >
+              <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18" />
+                <line x1="7" y1="2" x2="7" y2="22" />
+                <line x1="17" y1="2" x2="17" y2="22" />
+                <line x1="2" y1="12" x2="22" y2="12" />
+                <line x1="2" y1="7" x2="7" y2="7" />
+                <line x1="2" y1="17" x2="7" y2="17" />
+                <line x1="17" y1="7" x2="22" y2="7" />
+                <line x1="17" y1="17" x2="22" y2="17" />
+              </svg>
+              <span>{file ? 'Embed Subtitles in Video' : 'Embed Subtitles in Video...'}</span>
+            </button>
+            {!file && embedState === 'idle' && (
+              <p className="mt-2 text-center text-xs text-stone-400 dark:text-stone-500">
+                Embed will prompt you to re-select your video file.
+              </p>
+            )}
+          </div>
         )}
 
         {/* Hidden file picker for embed fallback */}
@@ -488,108 +560,56 @@ export default function ResultPanel({ job, onReset, fileName, thumbnailUrl, file
           />
         )}
 
-        {/* ── Per-language individual downloads ─────────────────── */}
-        <div className="border-t border-stone-200 pt-6 dark:border-stone-700">
-          <p className="mb-4 text-xs font-medium uppercase tracking-wider text-stone-400 dark:text-stone-500">
-            Individual Files
-          </p>
-          {languages.map((lang, index) => (
-            <div key={lang} className={index > 0 ? 'mt-4 border-t border-stone-100 pt-4 dark:border-stone-800' : ''}>
-              {languages.length > 1 && (
-                <h3 className="mb-3 flex items-center gap-2 text-sm font-semibold text-stone-700 dark:text-stone-300">
-                  {getLangName(lang)}
-                  {index > 0 && (
-                    <span className="rounded-full bg-green-100 px-2 py-0.5 text-xs font-medium text-green-700 dark:bg-green-950 dark:text-green-400">
-                      translation
-                    </span>
-                  )}
-                </h3>
-              )}
-
-              <div>
-                <DownloadButton
-                  jobId={job.id}
-                  language={lang}
-                  format="srt"
-                  label="Download SRT"
-                  shared={shared}
-                />
-                <VttLink jobId={job.id} language={lang} shared={shared} />
-              </div>
+        {/* Share row */}
+        <div className="mt-6 border-t border-stone-200 pt-4 dark:border-stone-700">
+          {shared ? (
+            <div className="flex items-center gap-2.5 px-3 py-2">
+              <svg className="h-4 w-4 flex-shrink-0 text-brand-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="12" cy="12" r="10" />
+                <polyline points="12 6 12 12 16 14" />
+              </svg>
+              <p className="text-xs text-brand-700 dark:text-brand-300">
+                This shared link expires on {new Date(expiresAt).toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' })}.
+              </p>
             </div>
-          ))}
+          ) : (
+            <div className="flex items-center gap-2.5 px-3 py-2">
+              <svg className="h-4 w-4 flex-shrink-0 text-stone-400 dark:text-stone-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="18" cy="5" r="3" />
+                <circle cx="6" cy="12" r="3" />
+                <circle cx="18" cy="19" r="3" />
+                <line x1="8.59" y1="13.51" x2="15.42" y2="17.49" />
+                <line x1="15.41" y1="6.51" x2="8.59" y2="10.49" />
+              </svg>
+              <p className="flex-1 text-xs text-stone-500 dark:text-stone-400">
+                Share these subtitles &mdash; link valid for 7 days
+              </p>
+              <button
+                onClick={() => {
+                  const url = `${window.location.origin}/job/${job.id}`;
+                  navigator.clipboard.writeText(url).then(() => {
+                    setLinkCopied(true);
+                    setTimeout(() => setLinkCopied(false), 2000);
+                  });
+                }}
+                className="flex-shrink-0 rounded-md bg-brand-600 px-3 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-brand-700"
+              >
+                {linkCopied ? 'Copied!' : 'Copy Link'}
+              </button>
+            </div>
+          )}
         </div>
-
-        {/* Share link / expiry notice */}
-        {shared ? (
-          <div className="mt-6 flex items-start gap-2.5 rounded-lg bg-brand-50 px-4 py-3 dark:bg-brand-950">
-            <svg className="mt-0.5 h-4 w-4 flex-shrink-0 text-brand-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <circle cx="12" cy="12" r="10" />
-              <polyline points="12 6 12 12 16 14" />
-            </svg>
-            <p className="text-xs text-brand-700 dark:text-brand-300">
-              This shared link expires on {new Date(expiresAt).toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' })}.
-            </p>
-          </div>
-        ) : (
-          <div className="mt-6 flex items-center gap-2.5 rounded-lg bg-brand-50 px-4 py-3 dark:bg-brand-950">
-            <svg className="h-4 w-4 flex-shrink-0 text-brand-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <circle cx="18" cy="5" r="3" />
-              <circle cx="6" cy="12" r="3" />
-              <circle cx="18" cy="19" r="3" />
-              <line x1="8.59" y1="13.51" x2="15.42" y2="17.49" />
-              <line x1="15.41" y1="6.51" x2="8.59" y2="10.49" />
-            </svg>
-            <p className="flex-1 text-xs text-brand-700 dark:text-brand-300">
-              Share these subtitles with anyone — link is valid for 7 days.
-            </p>
-            <button
-              onClick={() => {
-                const url = `${window.location.origin}/job/${job.id}`;
-                navigator.clipboard.writeText(url).then(() => {
-                  setLinkCopied(true);
-                  setTimeout(() => setLinkCopied(false), 2000);
-                });
-              }}
-              className="flex-shrink-0 rounded-md bg-brand-600 px-3 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-brand-700"
-            >
-              {linkCopied ? 'Copied!' : 'Copy Share Link'}
-            </button>
-          </div>
-        )}
 
         {/* AI disclaimer */}
-        <div className="mt-3 flex items-start gap-2.5 rounded-lg bg-amber-50 px-4 py-3 dark:bg-amber-950">
-          <svg className="mt-0.5 h-4 w-4 flex-shrink-0 text-amber-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <circle cx="12" cy="12" r="10" />
-            <line x1="12" y1="8" x2="12" y2="12" />
-            <line x1="12" y1="16" x2="12.01" y2="16" />
-          </svg>
-          <p className="text-xs text-amber-700 dark:text-amber-400">
-            These subtitles were generated by AI and may contain minor errors, especially with
-            proper nouns and fantasy names. We recommend a quick review before distributing.
-          </p>
-        </div>
+        <p className="mt-3 text-xs text-stone-400 dark:text-stone-500">
+          AI-generated subtitles may contain minor errors. Review before distributing.
+        </p>
 
-        {/* Job info */}
-        {job && (
-          <div className="mt-6 rounded-lg bg-stone-50 px-4 py-3 dark:bg-stone-800">
-            <div className="flex flex-wrap gap-x-6 gap-y-1 text-xs text-stone-500 dark:text-stone-400">
-              {job.audio_seconds && (
-                <span>Duration: {Math.ceil(job.audio_seconds / 60)} min</span>
-              )}
-              {!shared && job.minutes_charged && (
-                <span>Credits used: {job.minutes_charged} min</span>
-              )}
-            </div>
-          </div>
-        )}
-
-        {/* Generate another / Go to SyncScribe */}
+        {/* Generate Another / Go to SyncScribe */}
         <div className="mt-6">
           <button
             onClick={onReset}
-            className="btn-secondary w-full"
+            className="btn-ghost w-full"
           >
             {shared ? (
               <>

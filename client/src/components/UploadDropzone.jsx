@@ -652,7 +652,7 @@ export default function UploadDropzone({ isAuthenticated, onAuthRequired, onAudi
         </div>
 
         {/* Progress card */}
-        <div className="w-full max-w-lg rounded-2xl border border-stone-200 bg-white p-8 shadow-sm dark:border-stone-700 dark:bg-stone-900">
+        <div className="w-full max-w-2xl rounded-2xl border border-stone-200 bg-white p-8 shadow-sm dark:border-stone-700 dark:bg-stone-900">
           <div className="mb-4 flex items-center justify-between text-sm">
             <span className="font-medium text-stone-700 dark:text-stone-300">{progressMessage}</span>
             <span className="tabular-nums text-stone-500 dark:text-stone-400">{progress}%</span>
@@ -694,7 +694,7 @@ export default function UploadDropzone({ isAuthenticated, onAuthRequired, onAudi
             <img
               src={thumbnailUrl}
               alt=""
-              className="mx-auto mb-4 h-32 w-auto rounded-lg shadow-sm"
+              className="mx-auto mb-4 h-44 w-auto rounded-xl border border-stone-200 shadow-lg dark:border-stone-700"
             />
           )}
           <h1 className="mb-2 text-2xl font-bold text-stone-900 dark:text-stone-100">
@@ -703,7 +703,7 @@ export default function UploadDropzone({ isAuthenticated, onAuthRequired, onAudi
         </div>
 
         {/* Track selector card */}
-        <div className="w-full max-w-lg rounded-2xl border border-stone-200 bg-white p-8 shadow-sm dark:border-stone-700 dark:bg-stone-900">
+        <div className="w-full max-w-2xl rounded-2xl border border-stone-200 bg-white p-8 shadow-sm dark:border-stone-700 dark:bg-stone-900">
           <p className="mb-4 text-sm text-stone-600 dark:text-stone-400">
             Multiple audio tracks detected. Select which track to transcribe:
           </p>
@@ -815,7 +815,7 @@ export default function UploadDropzone({ isAuthenticated, onAuthRequired, onAudi
           </h1>
         </div>
 
-        <div className="w-full max-w-lg rounded-2xl border border-red-200 bg-white p-8 shadow-sm dark:border-red-900 dark:bg-stone-900">
+        <div className="w-full max-w-2xl rounded-2xl border border-red-200 bg-white p-8 shadow-sm dark:border-red-900 dark:bg-stone-900">
           <div className="mb-6 flex items-start gap-3">
             <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-red-100 dark:bg-red-950">
               <svg className="h-5 w-5 text-red-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -867,7 +867,7 @@ export default function UploadDropzone({ isAuthenticated, onAuthRequired, onAudi
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
         className={`
-          group w-full max-w-lg cursor-pointer rounded-2xl border-2 border-dashed
+          group w-full max-w-xl cursor-pointer rounded-2xl border-2 border-dashed
           bg-white p-12 text-center shadow-sm
           transition-all duration-200
           dark:bg-stone-900

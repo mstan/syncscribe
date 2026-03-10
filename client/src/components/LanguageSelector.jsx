@@ -287,7 +287,7 @@ export default function LanguageSelector({ fileName, detectedLanguage, thumbnail
           <img
             src={thumbnailUrl}
             alt=""
-            className="mx-auto mb-4 h-32 w-auto rounded-lg shadow-sm"
+            className="mx-auto mb-4 h-44 w-auto rounded-xl border border-stone-200 shadow-lg dark:border-stone-700"
           />
         )}
         <h1 className="mb-2 text-2xl font-bold text-stone-900 dark:text-stone-100">
@@ -299,7 +299,7 @@ export default function LanguageSelector({ fileName, detectedLanguage, thumbnail
       </div>
 
       {/* Settings card */}
-      <div className="w-full max-w-lg rounded-2xl border border-stone-200 bg-white p-8 shadow-sm dark:border-stone-700 dark:bg-stone-900">
+      <div className="w-full max-w-2xl rounded-2xl border border-stone-200 bg-white p-8 shadow-sm dark:border-stone-700 dark:bg-stone-900">
         {/* Target language */}
         <div className="mb-6">
           <label className="mb-2 block text-sm font-semibold text-stone-700 dark:text-stone-300">
