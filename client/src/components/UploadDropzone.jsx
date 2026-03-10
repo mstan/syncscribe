@@ -628,7 +628,7 @@ export default function UploadDropzone({ isAuthenticated, onAuthRequired, onAudi
       const data = await ffmpeg.readFile(previewFile);
       try { await ffmpeg.deleteFile(previewFile); } catch {}
 
-      const blob = new Blob([data.buffer], { type: 'audio/wav' });
+      const blob = new Blob([data], { type: 'audio/wav' });
       const url = URL.createObjectURL(blob);
 
       setPreviewUrls(prev => ({ ...prev, [audioIndex]: url }));
