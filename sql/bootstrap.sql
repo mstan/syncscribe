@@ -75,12 +75,17 @@ CREATE TABLE IF NOT EXISTS jobs (
   series_context TEXT,
   mode TEXT NOT NULL DEFAULT 'transcribe',
   model TEXT DEFAULT 'whisper-1',
+  stage TEXT,
   error_code TEXT,
   error_message TEXT,
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   started_at TIMESTAMPTZ,
   finished_at TIMESTAMPTZ
 );
+
+-- Fine-grained progress within the 'running' status (transcribing, translating, …).
+-- Added after initial release; idempotent for existing deployments.
+ALTER TABLE jobs ADD COLUMN IF NOT EXISTS stage TEXT;
 
 CREATE INDEX IF NOT EXISTS idx_jobs_user_id ON jobs(user_id);
 CREATE INDEX IF NOT EXISTS idx_jobs_status ON jobs(status);

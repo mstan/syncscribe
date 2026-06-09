@@ -1,3 +1,6 @@
+import langConfig from '../../../shared/languages.js';
+const { getLangName } = langConfig;
+
 /**
  * Status display configuration.
  */
@@ -23,6 +26,30 @@ const STATUS_CONFIG = {
     color: 'red'
   }
 };
+
+/**
+ * Map a fine-grained worker stage to a friendly label + description. Stages
+ * arrive over the live event stream (e.g. 'transcribing', 'translating:en').
+ */
+function stageConfig(stage) {
+  if (!stage) return null;
+  const [name, arg] = stage.split(':');
+  switch (name) {
+    case 'transcribing':
+      return { label: 'Transcribing audio...', description: 'Converting speech to text. This is usually the longest step.' };
+    case 'correcting':
+      return { label: 'Refining names & terms...', description: 'Applying series context to fix character and place names.' };
+    case 'translating':
+      return {
+        label: `Translating to ${getLangName(arg) || arg}...`,
+        description: 'Translating each subtitle line while preserving timing.'
+      };
+    case 'finalizing':
+      return { label: 'Finalizing...', description: 'Packaging your subtitle files.' };
+    default:
+      return null;
+  }
+}
 
 /**
  * Animated spinner component.
@@ -74,7 +101,11 @@ function PulsingDots() {
  */
 export default function JobProgress({ job, error, thumbnailUrl, onRetry }) {
   const status = job?.status || 'awaiting_upload';
-  const config = STATUS_CONFIG[status] || STATUS_CONFIG.queued;
+  // While running, prefer the live stage label over the generic "Generating…".
+  const config =
+    (status === 'running' && stageConfig(job?.stage)) ||
+    STATUS_CONFIG[status] ||
+    STATUS_CONFIG.queued;
   const isFailed = status === 'failed' || (!!error && status === 'awaiting_upload');
 
   return (

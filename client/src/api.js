@@ -175,6 +175,16 @@ class Api {
   }
 
   /**
+   * Build the URL for the job-events SSE stream. EventSource can't set an
+   * Authorization header, so the JWT is passed as a query param.
+   */
+  jobEventsUrl(jobId) {
+    const token = this._getToken();
+    const q = token ? `?access_token=${encodeURIComponent(token)}` : '';
+    return `${API_BASE}/api/jobs/${jobId}/events${q}`;
+  }
+
+  /**
    * Get a download URL for subtitles.
    * @param {string} jobId
    * @param {string} language - language code (e.g. 'en')
