@@ -22,11 +22,13 @@ CREATE TABLE IF NOT EXISTS credit_packs (
   active BOOLEAN NOT NULL DEFAULT TRUE
 );
 
--- Seed default packs
+-- Seed default packs (fresh installs only; existing rows are left alone, so
+-- price changes on a live database are an explicit UPDATE). Keep in sync with
+-- client/src/content/marketing.js.
 INSERT INTO credit_packs (id, name, minutes_amount, price_cents, active) VALUES
-  ('single', 'Single', 120, 499, true),
-  ('season', 'Season', 400, 1299, true),
-  ('studio', 'Studio', 1500, 3999, true)
+  ('single', 'Single', 120, 999, true),
+  ('season', 'Season', 400, 2499, true),
+  ('studio', 'Studio', 1500, 7499, true)
 ON CONFLICT (id) DO NOTHING;
 
 -- Purchases (Stripe payments)

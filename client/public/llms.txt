@@ -16,7 +16,7 @@
 - Pay-as-you-go credits; 1 credit = 1 minute of audio. Credits never expire.
 - Each extra translation language costs half a credit per minute of audio.
 - 10 free minutes on signup, no credit card required.
-- Credit packs (USD): Single $4.99 (120 minutes), Season $12.99 (400 minutes), Studio $39.99 (1,500 minutes).
+- Credit packs (USD): Single $9.99 (120 minutes), Season $24.99 (400 minutes), Studio $74.99 (1,500 minutes).
 
 ## Account
 

@@ -18,9 +18,9 @@ export const SITE_DESCRIPTION =
  * minutes = transcription credits (1 credit = 1 minute of audio).
  */
 export const CREDIT_PACKS = [
-  { name: 'Single', price: '4.99', minutes: 120 },
-  { name: 'Season', price: '12.99', minutes: 400, popular: true },
-  { name: 'Studio', price: '39.99', minutes: 1500 },
+  { name: 'Single', price: '9.99', minutes: 120 },
+  { name: 'Season', price: '24.99', minutes: 400, popular: true },
+  { name: 'Studio', price: '74.99', minutes: 1500 },
 ];
 
 /**
