@@ -1,6 +1,10 @@
+import { CREDIT_PACKS, FAQ } from '../content/marketing';
+
 /**
  * LandingPage -- marketing page shown to unauthenticated visitors.
  * Renders inside AppShell (inherits TopBar + footer).
+ * Also prerendered into dist/index.html at build time (see src/prerender.jsx),
+ * so it must render without browser globals.
  */
 export default function LandingPage({ onSignIn }) {
   return (
@@ -177,11 +181,7 @@ export default function LandingPage({ onSignIn }) {
           </p>
 
           <div className="grid gap-6 sm:grid-cols-3">
-            {[
-              { name: 'Single', price: '$4.99', minutes: '120 min' },
-              { name: 'Season', price: '$12.99', minutes: '400 min', popular: true },
-              { name: 'Studio', price: '$39.99', minutes: '1,500 min' },
-            ].map(({ name, price, minutes, popular }) => (
+            {CREDIT_PACKS.map(({ name, price, minutes, popular }) => (
               <div
                 key={name}
                 className={
@@ -197,8 +197,8 @@ export default function LandingPage({ onSignIn }) {
                   </span>
                 )}
                 <h3 className="mb-1 text-lg font-semibold text-stone-900 dark:text-stone-50">{name}</h3>
-                <div className="mb-1 text-3xl font-extrabold text-stone-900 dark:text-stone-50">{price}</div>
-                <div className="text-sm text-stone-500 dark:text-stone-400">{minutes}</div>
+                <div className="mb-1 text-3xl font-extrabold text-stone-900 dark:text-stone-50">${price}</div>
+                <div className="text-sm text-stone-500 dark:text-stone-400">{minutes.toLocaleString('en-US')} min</div>
               </div>
             ))}
           </div>
@@ -209,6 +209,21 @@ export default function LandingPage({ onSignIn }) {
             </button>
           </div>
         </div>
+      </section>
+
+      {/* FAQ */}
+      <section className="mx-auto w-full max-w-3xl px-4 py-16">
+        <h2 className="mb-10 text-center text-2xl font-bold text-stone-900 dark:text-stone-50">
+          Frequently asked questions
+        </h2>
+        <dl className="divide-y divide-stone-200 rounded-2xl border border-stone-200 bg-white shadow-sm dark:divide-stone-700 dark:border-stone-700 dark:bg-stone-800">
+          {FAQ.map(({ q, a }) => (
+            <div key={q} className="px-6 py-5">
+              <dt className="font-semibold text-stone-900 dark:text-stone-50">{q}</dt>
+              <dd className="mt-2 text-sm text-stone-600 dark:text-stone-400">{a}</dd>
+            </div>
+          ))}
+        </dl>
       </section>
     </div>
   );

@@ -3,14 +3,44 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="Generate accurate subtitles for your media in minutes. Upload a video, get SRT/VTT files back. Fast, private, credit-based." />
+    <title>SyncScribe - AI Subtitle Generator | SRT &amp; VTT in 55 Languages</title>
+    <meta name="description" content="AI subtitle generator: get SRT and VTT subtitles in 55 languages. Your video stays on your device - audio is extracted in your browser. Pay-as-you-go, 10 free minutes." />
+    <link rel="canonical" href="https://syncscribe.cc/" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <title>SyncScribe - AI Subtitle Generator</title>
+
+    <!-- Open Graph / link unfurls -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="SyncScribe" />
+    <meta property="og:url" content="https://syncscribe.cc/" />
+    <meta property="og:title" content="SyncScribe - AI Subtitle Generator" />
+    <meta property="og:description" content="Get SRT and VTT subtitles for any video in 55 languages. Your video never leaves your device - only the audio is uploaded. Pay-as-you-go, 10 free minutes on signup." />
+    <meta property="og:image" content="https://syncscribe.cc/og-image.png" />
+    <meta property="og:image:type" content="image/png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="SyncScribe - AI subtitles for any video, in minutes. SRT and VTT, 55 languages." />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="SyncScribe - AI Subtitle Generator" />
+    <meta name="twitter:description" content="Get SRT and VTT subtitles for any video in 55 languages. Your video never leaves your device - only the audio is uploaded." />
+    <meta name="twitter:image" content="https://syncscribe.cc/og-image.png" />
+    <!-- SoftwareApplication + FAQPage JSON-LD are injected from src/content/marketing.js (see vite.config.js). -->
+
+    <style>
+      /* Hide the build-time prerendered landing page (see vite.config.js) when it isn't what will render. */
+      html[data-hide-prerender] [data-prerender] { display: none; }
+    </style>
     <script>
       (function() {
         var s = localStorage.getItem('theme');
         if (s === 'dark' || (!s && matchMedia('(prefers-color-scheme: dark)').matches))
           document.documentElement.classList.add('dark');
+      })();
+      (function() {
+        // Signed-in visitors and non-landing routes would otherwise see the
+        // static landing markup flash before React replaces it.
+        var hide = location.pathname !== '/';
+        try { hide = hide || !!localStorage.getItem('syncscribe_token'); } catch (e) {}
+        if (hide) document.documentElement.setAttribute('data-hide-prerender', '');
       })();
     </script>
   </head>

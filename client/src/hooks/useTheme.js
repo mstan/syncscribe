@@ -7,6 +7,8 @@ import { useState, useEffect, useCallback } from 'react';
  */
 export default function useTheme() {
   const [theme, setTheme] = useState(() => {
+    // No localStorage during the build-time prerender (Node).
+    if (typeof localStorage === 'undefined') return 'system';
     return localStorage.getItem('theme') || 'system';
   });
 

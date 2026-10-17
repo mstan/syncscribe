@@ -3,6 +3,7 @@ import { Routes, Route } from 'react-router-dom';
 import useAuth from './hooks/useAuth';
 import useCredits from './hooks/useCredits';
 import useJob from './hooks/useJob';
+import api from './api';
 import AppShell from './components/AppShell';
 import LandingPage from './components/LandingPage';
 import UploadDropzone from './components/UploadDropzone';
@@ -33,6 +34,7 @@ function MainPage() {
   const [view, setView] = useState(VIEW.UPLOAD);
   const [showAuthGate, setShowAuthGate] = useState(false);
   const [showBuyCredits, setShowBuyCredits] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
 
   // Data passed between workflow steps
   const [audioData, setAudioData] = useState(null); // { buffer, sha256, seconds, fileName, trackIndex? }
@@ -76,17 +78,21 @@ function MainPage() {
    * Called when user goes back from cost to language selection.
    */
   const handleBackToLanguage = useCallback(() => {
+    jobHook.setError(null);
     setLanguageConfig(null);
     setView(VIEW.LANGUAGE);
-  }, []);
+  }, [jobHook.setError]);
 
   /**
    * Called when user confirms job creation from cost breakdown.
    * Creates the job, uploads audio, enqueues, and starts polling.
    */
   const handleConfirmJob = useCallback(async () => {
-    if (!audioData || !languageConfig) return;
+    if (!audioData || !languageConfig || submitting) return;
+    setSubmitting(true);
 
+    // Tracked locally: jobHook.job in this closure is from before createJob ran.
+    let createdJobId = null;
     try {
       const jobData = {
         audio_sha256: audioData.sha256,
@@ -98,11 +104,11 @@ function MainPage() {
         jobData.series_context = languageConfig.series_context;
       }
       const { job } = await jobHook.createJob(jobData);
+      createdJobId = job.id;
 
       setView(VIEW.PROGRESS);
 
       // Upload audio to server (which proxies to R2)
-      const { default: api } = await import('./api');
       await api.uploadAudio(job.id, audioData.buffer);
 
       // Enqueue the job
@@ -112,16 +118,20 @@ function MainPage() {
       jobHook.pollStatus(job.id);
     } catch (err) {
       console.error('Job submission failed:', err);
-      if (jobHook.job) {
-        // Job was created but upload/enqueue failed — show error in progress view
+      if (createdJobId) {
+        // Job was created but upload/enqueue failed — show the error in the progress view
         jobHook.setError(err.message || 'Upload failed. Please try again.');
         setView(VIEW.PROGRESS);
       } else {
-        // Job creation itself failed — go back to cost view
+        // Job creation itself failed (e.g. insufficient credits) — stay on the
+        // cost view, which shows the error
+        jobHook.setError(err.message || 'Failed to create job. Please try again.');
         setView(VIEW.COST);
       }
+    } finally {
+      setSubmitting(false);
     }
-  }, [audioData, languageConfig, jobHook]);
+  }, [audioData, languageConfig, submitting, jobHook]);
 
   /**
    * Called when user wants to start over.
@@ -217,6 +227,8 @@ function MainPage() {
             additionalLanguages={languageConfig.additional_languages}
             balance={credits.balance}
             thumbnailUrl={audioData.thumbnailUrl}
+            error={jobHook.error}
+            submitting={submitting}
             onConfirm={handleConfirmJob}
             onBack={handleBackToLanguage}
             onBuyCredits={() => setShowBuyCredits(true)}

@@ -6,7 +6,23 @@ import api from '../api';
 // fully stuck. Far slower than the old 2s poll, so it doesn't spam the server.
 const FALLBACK_POLL_MS = 10000;
 
+// How long to wait before reopening an event stream the browser gave up on
+// (EventSource only auto-retries network drops, not error responses).
+const RECONNECT_MS = 5000;
+
 const isTerminal = (status) => status === 'succeeded' || status === 'failed' || status === 'cancelled';
+
+/**
+ * Errors that retrying won't fix: expired session, lost access, deleted job.
+ */
+function fatalStatusMessage(err) {
+  switch (err?.status) {
+    case 401: return 'Your session has expired. Please sign in again to check on this job.';
+    case 403: return 'You no longer have access to this job.';
+    case 404: return 'This job could not be found.';
+    default: return null;
+  }
+}
 
 /**
  * Job management hook.
@@ -18,14 +34,22 @@ export default function useJob() {
   const [polling, setPolling] = useState(false);
   const sourceRef = useRef(null);
   const fallbackRef = useRef(null);
+  const reconnectRef = useRef(null);
+  // Bumped on every start/stop so callbacks from a superseded watch are ignored.
+  const watchIdRef = useRef(0);
 
   /**
-   * Tear down the live stream and fallback poll.
+   * Tear down the live stream, pending reconnect, and fallback poll.
    */
   const stopPolling = useCallback(() => {
+    watchIdRef.current++;
     if (sourceRef.current) {
       sourceRef.current.close();
       sourceRef.current = null;
+    }
+    if (reconnectRef.current) {
+      clearTimeout(reconnectRef.current);
+      reconnectRef.current = null;
     }
     if (fallbackRef.current) {
       clearInterval(fallbackRef.current);
@@ -61,8 +85,11 @@ export default function useJob() {
   const pollStatus = useCallback((jobId) => {
     stopPolling();
     setPolling(true);
+    const watchId = watchIdRef.current;
+    const isCurrent = () => watchIdRef.current === watchId;
 
     const apply = (jobData) => {
+      if (!isCurrent()) return;
       setJob(jobData);
       if (isTerminal(jobData.status)) {
         if (jobData.status === 'failed') {
@@ -72,14 +99,24 @@ export default function useJob() {
       }
     };
 
-    // One-shot fetch used by the fallback timer (and if the stream errors).
+    // One-shot fetch used by the fallback timer and whenever the stream errors.
+    // EventSource can't expose the HTTP status of a failed connection, so this
+    // fetch is how an expired token (401) is detected.
     const fetchOnce = async () => {
       try {
         apply(await api.getJob(jobId));
       } catch (err) {
-        // Transient fetch errors are non-fatal here — the stream or the next
-        // fallback tick will recover. Only surface if nothing is connected.
-        if (!sourceRef.current) {
+        if (!isCurrent()) return;
+        const fatal = fatalStatusMessage(err);
+        if (fatal) {
+          // Retrying can't fix this; stop the stream (else it reconnects forever)
+          // and surface it. A 401 also signs the user out via api.js -> useAuth.
+          setError(fatal);
+          stopPolling();
+        } else if (!sourceRef.current && !reconnectRef.current) {
+          // Transient fetch errors are non-fatal while a stream is up or about to
+          // reconnect — it or the next fallback tick will recover. Only surface
+          // if nothing is connected.
           setError(err.message || 'Failed to check job status');
           stopPolling();
         }
@@ -87,27 +124,51 @@ export default function useJob() {
     };
 
     // Live updates via Server-Sent Events.
-    try {
-      const source = new EventSource(api.jobEventsUrl(jobId));
-      sourceRef.current = source;
-
-      source.onmessage = (evt) => {
-        try {
-          apply(JSON.parse(evt.data));
-        } catch {
-          // Ignore malformed frames (e.g. heartbeat comments never reach here).
-        }
-      };
-
-      source.onerror = () => {
-        // The browser auto-reconnects EventSource; meanwhile, fall back to a
-        // one-shot fetch so a dropped stream can't strand the UI.
+    const connect = async () => {
+      if (!isCurrent()) return;
+      reconnectRef.current = null;
+      let url;
+      try {
+        url = await api.jobEventsUrl(jobId);
+      } catch {
+        // Couldn't get a stream token; fetchOnce surfaces fatal errors (401/403/404),
+        // otherwise retry the stream later. The fallback poll covers the gap.
+        if (!isCurrent()) return;
+        if (!reconnectRef.current) reconnectRef.current = setTimeout(connect, RECONNECT_MS);
         fetchOnce();
-      };
-    } catch {
-      // EventSource unavailable — fetch immediately and rely on the fallback poll.
-      fetchOnce();
-    }
+        return;
+      }
+      if (!isCurrent()) return;
+      try {
+        const source = new EventSource(url);
+        sourceRef.current = source;
+
+        source.onmessage = (evt) => {
+          try {
+            apply(JSON.parse(evt.data));
+          } catch {
+            // Ignore malformed frames (e.g. heartbeat comments never reach here).
+          }
+        };
+
+        source.onerror = () => {
+          if (!isCurrent()) return;
+          // Network drops auto-reconnect (readyState CONNECTING); an error
+          // response closes the stream for good (CLOSED), so reopen it later
+          // unless fetchOnce finds the error is fatal and stops the watch.
+          if (source.readyState === EventSource.CLOSED) {
+            source.close();
+            if (sourceRef.current === source) sourceRef.current = null;
+            if (!reconnectRef.current) reconnectRef.current = setTimeout(connect, RECONNECT_MS);
+          }
+          fetchOnce();
+        };
+      } catch {
+        // EventSource unavailable — rely on the fallback poll.
+        sourceRef.current = null;
+      }
+    };
+    connect();
 
     // Safety-net poll (slow) regardless of stream health.
     fetchOnce();
@@ -128,7 +189,9 @@ export default function useJob() {
    */
   useEffect(() => {
     return () => {
+      watchIdRef.current++;
       if (sourceRef.current) sourceRef.current.close();
+      if (reconnectRef.current) clearTimeout(reconnectRef.current);
       if (fallbackRef.current) clearInterval(fallbackRef.current);
     };
   }, []);

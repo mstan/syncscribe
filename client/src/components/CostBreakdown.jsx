@@ -12,6 +12,8 @@ export default function CostBreakdown({
   additionalLanguages,
   balance,
   thumbnailUrl,
+  error,
+  submitting,
   onConfirm,
   onBack,
   onBuyCredits
@@ -146,20 +148,27 @@ export default function CostBreakdown({
           </div>
         )}
 
+        {/* Job creation error (e.g. insufficient credits, too many concurrent jobs) */}
+        {error && (
+          <div className="mb-6 rounded-lg bg-red-50 px-4 py-3 text-sm text-red-700 dark:bg-red-950 dark:text-red-400">
+            {error}
+          </div>
+        )}
+
         {/* Action buttons */}
         <div className="flex items-center gap-3">
-          <button onClick={onBack} className="btn-ghost">
+          <button onClick={onBack} disabled={submitting} className="btn-ghost">
             Back
           </button>
           <button
             onClick={onConfirm}
-            disabled={!hasSufficientCredits}
+            disabled={!hasSufficientCredits || submitting}
             className="btn-primary flex-1"
           >
             <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <polygon points="5 3 19 12 5 21 5 3" />
             </svg>
-            Generate Subtitles
+            {submitting ? 'Creating job...' : 'Generate Subtitles'}
           </button>
         </div>
       </div>

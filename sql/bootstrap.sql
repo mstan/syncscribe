@@ -59,6 +59,10 @@ CREATE TABLE IF NOT EXISTS credit_ledger (
 CREATE UNIQUE INDEX IF NOT EXISTS idx_credit_ledger_job_debit
   ON credit_ledger (job_id) WHERE type = 'job_debit';
 
+-- Prevent double clawback of a refunded/disputed purchase
+CREATE UNIQUE INDEX IF NOT EXISTS idx_credit_ledger_purchase_reversal
+  ON credit_ledger (purchase_id) WHERE type = 'adjustment' AND purchase_id IS NOT NULL;
+
 -- Jobs
 CREATE TABLE IF NOT EXISTS jobs (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -87,6 +91,11 @@ CREATE TABLE IF NOT EXISTS jobs (
 -- Added after initial release; idempotent for existing deployments.
 ALTER TABLE jobs ADD COLUMN IF NOT EXISTS stage TEXT;
 
+-- Credits reserved for an in-flight job (estimate at creation, then the
+-- server-measured duration once audio is uploaded). Balance checks subtract
+-- the reservations of a user's active jobs so concurrent jobs can't overspend.
+ALTER TABLE jobs ADD COLUMN IF NOT EXISTS minutes_reserved INTEGER;
+
 CREATE INDEX IF NOT EXISTS idx_jobs_user_id ON jobs(user_id);
 CREATE INDEX IF NOT EXISTS idx_jobs_status ON jobs(status);
 CREATE INDEX IF NOT EXISTS idx_jobs_audio_sha256 ON jobs(audio_sha256);
@@ -103,6 +112,17 @@ CREATE TABLE IF NOT EXISTS subtitles (
 );
 
 CREATE INDEX IF NOT EXISTS idx_subtitles_job_id ON subtitles(job_id);
+
+-- One row per (job, language, format). Older builds could insert duplicates on
+-- a retried/double-enqueued job; drop them before adding the constraint.
+DELETE FROM subtitles a USING subtitles b
+  WHERE a.job_id = b.job_id AND a.language = b.language AND a.format = b.format
+    AND a.created_at > b.created_at;
+DELETE FROM subtitles a USING subtitles b
+  WHERE a.job_id = b.job_id AND a.language = b.language AND a.format = b.format
+    AND a.created_at = b.created_at AND a.id > b.id;
+CREATE UNIQUE INDEX IF NOT EXISTS idx_subtitles_job_lang_format
+  ON subtitles (job_id, language, format);
 
 -- Promo codes
 CREATE TABLE IF NOT EXISTS promo_codes (

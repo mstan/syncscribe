@@ -1,5 +1,6 @@
 import { useState, useRef, useCallback } from 'react';
 import langConfig from '../../../shared/languages.js';
+import { mp3DurationSeconds, exactArrayBuffer } from '../utils/mp3';
 const { ISO639_2_NAMES, ISO639_2_TO_1 } = langConfig;
 
 /**
@@ -29,6 +30,7 @@ function isAcceptedFile(file) {
 
 /**
  * Compute SHA-256 hash of an ArrayBuffer using Web Crypto API.
+ * Returns lowercase hex (64 chars), the format the server expects for audio_sha256.
  */
 async function computeSHA256(buffer) {
   const hashBuffer = await crypto.subtle.digest('SHA-256', buffer);
@@ -37,32 +39,35 @@ async function computeSHA256(buffer) {
 }
 
 /**
- * Parse actual duration from ffmpeg log output.
+ * Parse the input container's duration from ffmpeg log output (seconds, float).
  * Matches lines like: Duration: 00:23:45.67, start: 0.000000, bitrate: ...
+ * Fallback only: it describes the source file, not the extracted track.
  */
 function parseDuration(logs) {
   for (const line of logs) {
     const match = line.match(/Duration:\s*(\d+):(\d+):(\d+)\.(\d+)/);
     if (match) {
-      return Math.round(
-        parseInt(match[1]) * 3600
+      return parseInt(match[1]) * 3600
         + parseInt(match[2]) * 60
         + parseInt(match[3])
-        + parseInt(match[4]) / 100
-      );
+        + parseInt(match[4]) / Math.pow(10, match[4].length);
     }
   }
   return null;
 }
 
 /**
- * Estimate audio duration from FLAC file size (fallback).
- * Used only when ffmpeg duration parsing fails.
+ * Billable audio length in whole seconds (positive integer, rounded up), for
+ * the job's audio_seconds. Measured from the extracted MP3 bytes themselves --
+ * the same bytes that are hashed and uploaded -- falling back to the input's
+ * logged duration. Throws if neither is available rather than guessing.
  */
-function estimateAudioSeconds(bufferSize) {
-  // Raw PCM: 16kHz × 1ch × 2 bytes = 32KB/s; FLAC ~60% compression → ~19KB/s
-  const bytesPerSecond = 19200;
-  return Math.max(1, Math.round(bufferSize / bytesPerSecond));
+function audioSecondsOf(audioBytes, logs) {
+  const seconds = mp3DurationSeconds(audioBytes) ?? parseDuration(logs);
+  if (!seconds || !Number.isFinite(seconds) || seconds <= 0) {
+    throw new Error('Could not determine the audio duration');
+  }
+  return Math.max(1, Math.ceil(seconds));
 }
 
 /**
@@ -226,7 +231,8 @@ export default function UploadDropzone({ isAuthenticated, onAuthRequired, onAudi
       // Read the output
       setProgressMessage('Preparing audio data...');
       const outputData = await ffmpeg.readFile('output.mp3');
-      const audioBuffer = outputData.buffer;
+      // Exactly the file's bytes: this one buffer is hashed, measured, and uploaded.
+      const audioBuffer = exactArrayBuffer(outputData);
 
       // Extract thumbnail before cleanup
       let thumbUrl = null;
@@ -261,8 +267,7 @@ export default function UploadDropzone({ isAuthenticated, onAuthRequired, onAudi
       setProgressMessage('Computing file hash...');
       const sha256 = await computeSHA256(audioBuffer);
 
-      // Parse actual duration from ffmpeg logs, fall back to estimate
-      const seconds = parseDuration(logs) || estimateAudioSeconds(audioBuffer.byteLength);
+      const seconds = audioSecondsOf(audioBuffer, logs);
 
       // Look up track language from current tracks state via ref
       const selectedTrackInfo = tracksRef.current?.find(t => t.audioIndex === audioIndex);
@@ -364,7 +369,8 @@ export default function UploadDropzone({ isAuthenticated, onAuthRequired, onAudi
       // Read the extracted output
       setProgressMessage('Preparing audio data...');
       const outputData = await ffmpeg.readFile('output.mp3');
-      const audioBuffer = outputData.buffer;
+      // Exactly the file's bytes: this one buffer is hashed, measured, and uploaded.
+      const audioBuffer = exactArrayBuffer(outputData);
 
       // Delete output file (keep input in case of re-extraction)
       try { await ffmpeg.deleteFile('output.mp3'); } catch {}
@@ -373,8 +379,7 @@ export default function UploadDropzone({ isAuthenticated, onAuthRequired, onAudi
       setProgressMessage('Computing file hash...');
       const sha256 = await computeSHA256(audioBuffer);
 
-      // Parse actual duration from ffmpeg logs, fall back to estimate
-      const seconds = parseDuration(logs) || estimateAudioSeconds(audioBuffer.byteLength);
+      const seconds = audioSecondsOf(audioBuffer, logs);
 
       // Map 3-letter track language to 2-letter code for the language selector
       const defaultTrackLang = detectedTracks[0]?.language;

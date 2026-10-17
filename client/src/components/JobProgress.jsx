@@ -101,12 +101,15 @@ function PulsingDots() {
  */
 export default function JobProgress({ job, error, thumbnailUrl, onRetry }) {
   const status = job?.status || 'awaiting_upload';
+  // Any surfaced error is terminal for this view (upload/enqueue failure,
+  // expired session, lost job) even if the last known status was still active.
+  const isFailed = status === 'failed' || !!error;
   // While running, prefer the live stage label over the generic "Generating…".
-  const config =
-    (status === 'running' && stageConfig(job?.stage)) ||
-    STATUS_CONFIG[status] ||
-    STATUS_CONFIG.queued;
-  const isFailed = status === 'failed' || (!!error && status === 'awaiting_upload');
+  const config = isFailed
+    ? STATUS_CONFIG.failed
+    : (status === 'running' && stageConfig(job?.stage)) ||
+      STATUS_CONFIG[status] ||
+      STATUS_CONFIG.queued;
 
   return (
     <div className="flex flex-col items-center">

@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
-import api from '../api';
+import api, { AUTH_EXPIRED_EVENT } from '../api';
 
 const TOKEN_KEY = 'syncscribe_token';
 const USER_KEY = 'syncscribe_user';
@@ -17,7 +17,9 @@ export default function useAuth() {
       return null;
     }
   });
-  const [loading, setLoading] = useState(true);
+  // Only "loading" if there is a token to validate. Visitors without one render
+  // the landing page on the first frame (matching the prerendered markup).
+  const [loading, setLoading] = useState(() => !!localStorage.getItem(TOKEN_KEY));
   const [error, setError] = useState(null);
 
   const isAuthenticated = !!user;
@@ -59,6 +61,24 @@ export default function useAuth() {
     return () => {
       cancelled = true;
     };
+  }, []);
+
+  /**
+   * Sign out when any authenticated API call reports the session as expired
+   * (see api.js). Ignore a stale 401 for a token that has since been replaced
+   * by a fresh login.
+   */
+  useEffect(() => {
+    const handleExpired = (e) => {
+      const current = localStorage.getItem(TOKEN_KEY);
+      if (current && e.detail?.token && e.detail.token !== current) return;
+      localStorage.removeItem(TOKEN_KEY);
+      localStorage.removeItem(USER_KEY);
+      setUser(null);
+      setError('Your session has expired. Please sign in again.');
+    };
+    window.addEventListener(AUTH_EXPIRED_EVENT, handleExpired);
+    return () => window.removeEventListener(AUTH_EXPIRED_EVENT, handleExpired);
   }, []);
 
   /**
