@@ -405,6 +405,11 @@ export default function ResultPanel({ job, onReset, fileName, thumbnailUrl, file
             : 'Your subtitles have been generated successfully.'
           }
         </p>
+        {job?.detected_title && (
+          <p className="mt-1 text-xs text-stone-400 dark:text-stone-500">
+            Names checked against {job.detected_title}
+          </p>
+        )}
       </div>
 
       {/* Downloads card */}

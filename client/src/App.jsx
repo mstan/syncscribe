@@ -98,11 +98,11 @@ function MainPage() {
         audio_sha256: audioData.sha256,
         audio_seconds: audioData.seconds,
         language: languageConfig.language,
-        additional_languages: languageConfig.additional_languages
+        additional_languages: languageConfig.additional_languages,
+        // Hints for automatic name correction (the server identifies the show/film)
+        file_name: audioData.fileName,
+        media_title: audioData.mediaTitle
       };
-      if (languageConfig.series_context) {
-        jobData.series_context = languageConfig.series_context;
-      }
       const { job } = await jobHook.createJob(jobData);
       createdJobId = job.id;
 

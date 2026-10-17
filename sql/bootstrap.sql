@@ -96,6 +96,12 @@ ALTER TABLE jobs ADD COLUMN IF NOT EXISTS stage TEXT;
 -- the reservations of a user's active jobs so concurrent jobs can't overspend.
 ALTER TABLE jobs ADD COLUMN IF NOT EXISTS minutes_reserved INTEGER;
 
+-- Hints for automatic name correction (the client's file name and the
+-- container's title tag) and the title the corrector identified.
+ALTER TABLE jobs ADD COLUMN IF NOT EXISTS source_name TEXT;
+ALTER TABLE jobs ADD COLUMN IF NOT EXISTS media_title TEXT;
+ALTER TABLE jobs ADD COLUMN IF NOT EXISTS detected_title TEXT;
+
 CREATE INDEX IF NOT EXISTS idx_jobs_user_id ON jobs(user_id);
 CREATE INDEX IF NOT EXISTS idx_jobs_status ON jobs(status);
 CREATE INDEX IF NOT EXISTS idx_jobs_audio_sha256 ON jobs(audio_sha256);

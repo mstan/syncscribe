@@ -7,7 +7,7 @@
 - Output: SRT and VTT for every selected language, or an MKV with the subtitle tracks embedded (soft subtitles, muxed in the browser).
 - Languages: 55 languages for transcription, with automatic language detection. Any supported language can be added as a translation target.
 - Inputs: MKV, MP4, AVI, MOV, WebM, FLV, WMV, M4V video; MP3, WAV, FLAC, AAC, OGG, M4A, WMA, Opus audio. Multi-audio-track files let you choose the track.
-- Name correction: optionally give the series/episode; SyncScribe uses reference data for that title to fix misheard character and place names, applying only corrections backed by that reference data.
+- Automatic name correction: SyncScribe identifies the show or film from the file name, embedded title and dialogue (no user input), looks up its character/place names, and fixes misheard ones, applying only corrections backed by that reference data. Unrecognized audio (home videos, lectures) is left as transcribed.
 - Speed: most files process in a few minutes. Feature-length files are supported.
 - Sharing: finished jobs get a permalink.
 

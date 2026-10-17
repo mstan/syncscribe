@@ -102,15 +102,23 @@ before(async () => {
     };
   };
   handler.translator = {
-    translateSegments: async (segments, target) => {
-      translateCalls.push(target);
+    translateSegments: async (segments, target, source, media) => {
+      translateCalls.push({ target, media });
       return segments.map(s => ({ ...s, text: `[${target}] ${s.text}` }));
     }
   };
+  // Identifies anything whose file name mentions "bebop"; leaves the rest alone.
   handler.corrector = {
-    correctSegments: async (segments, context) => {
-      correctCalls.push(context);
-      return segments.map(s => ({ ...s, text: `${s.text} (corrected)` }));
+    correctSegments: async (segments, hints) => {
+      correctCalls.push(hints);
+      if (!/bebop/i.test(hints.fileName || '')) {
+        return { segments, identification: { identified: false, confidence: 'low', title: null }, names: [] };
+      }
+      return {
+        segments: segments.map(s => ({ ...s, text: `${s.text} (corrected)` })),
+        identification: { identified: true, confidence: 'high', title: 'Cowboy Bebop' },
+        names: ['Spike Spiegel']
+      };
     }
   };
 
@@ -288,27 +296,42 @@ test('concurrent job creation cannot overspend credits', { skip }, async () => {
   assert.deepEqual(statuses, [201, 201, 402]);
 });
 
-test('series context bypasses the uncorrected cache and gets its own entry', { skip }, async () => {
+test('name correction runs automatically from file-name hints, feeds translation, and survives cache hits', { skip }, async () => {
   const user = await makeUser(100);
-  const first = await runJob(user, shortAudio);
+  const audio = makeAudio(45, 'bebop.mp3');
+  const first = await runJob(user, audio, {
+    file_name: '[Grp] Cowboy Bebop - 05.mkv', media_title: 'Ballad of Fallen Angels', additional_languages: ['es']
+  });
   assert.equal(first.status, 'succeeded');
+  assert.equal(first.source_name, '[Grp] Cowboy Bebop - 05.mkv');
+  assert.equal(first.detected_title, 'Cowboy Bebop');
+  assert.deepEqual(correctCalls, [{ fileName: '[Grp] Cowboy Bebop - 05.mkv', mediaTitle: 'Ballad of Fallen Angels' }]);
+  assert.deepEqual(translateCalls, [{ target: 'es', media: { title: 'Cowboy Bebop', names: ['Spike Spiegel'] } }]);
+  const { rows } = await handler.postgres.query(
+    `SELECT object_key FROM subtitles WHERE job_id = $1 AND language = 'en' AND format = 'srt'`, [first.id]
+  );
+  assert.match(r2Store.get(rows[0].object_key).toString(), /corrected/);
 
-  const withContext = await runJob(user, shortAudio, { series_context: 'Cowboy Bebop' });
-  assert.equal(withContext.cached_hit, false);
-  assert.deepEqual(correctCalls, ['Cowboy Bebop']);
-
-  const again = await runJob(user, shortAudio, { series_context: '  cowboy   BEBOP ' });
+  // Same audio, new translation language: cached primary, no second correction,
+  // but the translation still gets the identified title and glossary.
+  translateCalls.length = 0;
+  const again = await runJob(user, audio, { file_name: 'renamed.mkv', additional_languages: ['fr'] });
   assert.equal(again.cached_hit, true);
   assert.equal(correctCalls.length, 1);
+  assert.equal(again.detected_title, 'Cowboy Bebop');
+  assert.deepEqual(translateCalls, [{ target: 'fr', media: { title: 'Cowboy Bebop', names: ['Spike Spiegel'] } }]);
 
-  // The context run must not have overwritten the earlier job's subtitle file.
-  const keys = await handler.postgres.query(
-    `SELECT job_id, object_key FROM subtitles WHERE job_id = ANY($1) AND format = 'srt'`,
-    [[first.id, withContext.id]]
-  );
-  const byJob = Object.fromEntries(keys.rows.map(r => [r.job_id, r.object_key]));
-  assert.notEqual(byJob[first.id], byJob[withContext.id]);
-  assert.doesNotMatch(r2Store.get(byJob[first.id]).toString(), /corrected/);
+  // Unidentified audio: no detected title, empty translation context.
+  translateCalls.length = 0;
+  const plain = await runJob(user, makeAudio(20, 'plain.mp3'), { file_name: 'lecture.mp4', additional_languages: ['de'] });
+  assert.equal(plain.detected_title, null);
+  assert.deepEqual(translateCalls, [{ target: 'de', media: {} }]);
+});
+
+test('old clients sending series_context still work (field ignored)', { skip }, async () => {
+  const user = await makeUser(100);
+  const res = await createJob(user, shortAudio, { series_context: 'x'.repeat(5000) });
+  assert.equal(res.status, 201);
 });
 
 test('translations are cached per source and never served as a primary transcription', { skip }, async () => {
@@ -316,7 +339,7 @@ test('translations are cached per source and never served as a primary transcrip
   const audio = makeAudio(61, 'translate.mp3'); // distinct hash, 2 minutes
   const job = await runJob(user, audio, { additional_languages: ['es', 'es', 'en'] });
   assert.equal(job.status, 'succeeded');
-  assert.deepEqual(translateCalls, ['es']); // deduped, primary removed
+  assert.deepEqual(translateCalls.map(c => c.target), ['es']); // deduped, primary removed
   assert.equal(job.minutes_charged, 2 + 1);
 
   // Primary 'es' for the same audio must transcribe, not reuse the translation.

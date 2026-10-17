@@ -47,7 +47,7 @@ export const FAQ = [
   },
   {
     q: 'Can it get character names right?',
-    a: 'Optionally tell SyncScribe the series and episode. It uses reference data for that title to fix misheard character and place names, and only applies corrections that are backed by that reference data.',
+    a: 'Yes, automatically. SyncScribe works out which show or film it is from the file name and the dialogue, looks up its character and place names, and fixes misheard ones. It only applies corrections backed by that reference data, and leaves home videos and other unrecognized audio alone.',
   },
   {
     q: 'How long can a file be?',

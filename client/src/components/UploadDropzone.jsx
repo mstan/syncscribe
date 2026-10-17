@@ -57,6 +57,21 @@ function parseDuration(logs) {
 }
 
 /**
+ * The input container's title tag from ffmpeg's log ("Metadata: title : ..."),
+ * if any. Only the container-level block (before the first "Stream #" line)
+ * is read; per-stream titles are track names. Sent as a hint for automatic
+ * name correction.
+ */
+function parseContainerTitle(logs) {
+  for (const line of logs) {
+    if (/Stream #/.test(line)) break;
+    const match = line.match(/^\s*title\s*:\s*(.+?)\s*$/i);
+    if (match) return match[1];
+  }
+  return null;
+}
+
+/**
  * Billable audio length in whole seconds (positive integer, rounded up), for
  * the job's audio_seconds. Measured from the extracted MP3 bytes themselves --
  * the same bytes that are hashed and uploaded -- falling back to the input's
@@ -280,6 +295,7 @@ export default function UploadDropzone({ isAuthenticated, onAuthRequired, onAudi
         sha256,
         seconds,
         fileName: fileNameRef.current,
+        mediaTitle: parseContainerTitle(logs),
         trackIndex: audioIndex,
         trackLanguage,
         thumbnailUrl: thumbUrl,
@@ -410,6 +426,7 @@ export default function UploadDropzone({ isAuthenticated, onAuthRequired, onAudi
         sha256,
         seconds,
         fileName: file.name,
+        mediaTitle: parseContainerTitle(logs),
         trackIndex: 0,
         trackLanguage,
         thumbnailUrl: thumbUrl,
