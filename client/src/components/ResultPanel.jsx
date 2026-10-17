@@ -389,12 +389,12 @@ export default function ResultPanel({ job, onReset, fileName, thumbnailUrl, file
             className="mx-auto mb-4 h-44 w-auto rounded-xl border border-stone-200 shadow-lg dark:border-stone-700"
           />
         )}
-        <h1 className="mb-2 flex items-center justify-center gap-2 text-2xl font-bold text-stone-900 dark:text-stone-100">
+        <h1 className="mb-2 flex items-center justify-center gap-2 text-2xl font-semibold text-stone-900 dark:text-stone-100">
           <svg className="h-6 w-6 text-green-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
             <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
             <polyline points="22 4 12 14.01 9 11.01" />
           </svg>
-          Subtitles Ready
+          Subtitles ready
         </h1>
         <p className="text-sm text-stone-500 dark:text-stone-400">
           {job?.audio_seconds
@@ -475,7 +475,7 @@ export default function ResultPanel({ job, onReset, fileName, thumbnailUrl, file
                 <line x1="17" y1="7" x2="22" y2="7" />
                 <line x1="17" y1="17" x2="22" y2="17" />
               </svg>
-              <span className="font-semibold">{file ? 'Embed Subtitles in Video' : 'Embed Subtitles in Video...'}</span>
+              <span className="font-semibold">{file ? 'Embed subtitles in video' : 'Embed subtitles in video…'}</span>
             </button>
             {!file && embedState === 'idle' && (
               <p className="mt-2 text-center text-xs text-stone-400 dark:text-stone-500">
@@ -504,7 +504,7 @@ export default function ResultPanel({ job, onReset, fileName, thumbnailUrl, file
                       <line x1="12" y1="15" x2="12" y2="3" />
                     </svg>
                   )}
-                  <span>Download All Subtitles</span>
+                  <span>Download all subtitles</span>
                 </button>
                 {downloadAllError && (
                   <p className="mt-2 text-xs text-red-600 dark:text-red-400">{downloadAllError}</p>

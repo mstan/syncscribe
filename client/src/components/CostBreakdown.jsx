@@ -4,7 +4,7 @@ const { getLangName } = langConfig;
 
 /**
  * CostBreakdown -- shows the estimated cost before job creation.
- * Displays a line-item breakdown and "Generate Subtitles" button.
+ * Displays a line-item breakdown and "Generate subtitles" button.
  */
 export default function CostBreakdown({
   audioSeconds,
@@ -46,8 +46,8 @@ export default function CostBreakdown({
             className="mx-auto mb-4 h-44 w-auto rounded-xl border border-stone-200 shadow-lg dark:border-stone-700"
           />
         )}
-        <h1 className="mb-2 text-2xl font-bold text-stone-900 dark:text-stone-100">
-          Cost Estimate
+        <h1 className="mb-2 text-2xl font-semibold text-stone-900 dark:text-stone-100">
+          Cost estimate
         </h1>
         <p className="text-sm text-stone-500 dark:text-stone-400">
           Review the credit cost before generating subtitles.
@@ -143,7 +143,7 @@ export default function CostBreakdown({
               onClick={onBuyCredits}
               className="btn-primary w-full"
             >
-              Buy Credits
+              Buy credits
             </button>
           </div>
         )}
@@ -168,7 +168,7 @@ export default function CostBreakdown({
             <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <polygon points="5 3 19 12 5 21 5 3" />
             </svg>
-            {submitting ? 'Creating job...' : 'Generate Subtitles'}
+            {submitting ? 'Creating job...' : 'Generate subtitles'}
           </button>
         </div>
       </div>

@@ -112,8 +112,29 @@ function prerenderLandingPlugin() {
   };
 }
 
+/**
+ * Dev server only: shared/*.js is CommonJS (the backend require()s it), and
+ * Vite's dev server serves source files as ES modules without converting
+ * CommonJS outside node_modules, so `import langConfig from '../../../shared/languages.js'`
+ * failed under `npm run dev`. Wrap it as an ES module exposing module.exports
+ * as the default export. Production builds convert it via build.commonjsOptions.
+ */
+function sharedCommonJsDevPlugin() {
+  return {
+    name: 'syncscribe-shared-cjs-dev',
+    apply: 'serve',
+    transform(code, id) {
+      if (!/\/shared\/[^/]+\.js$/.test(id) || !code.includes('module.exports')) return null;
+      return {
+        code: `const module = { exports: {} };\nconst exports = module.exports;\n${code}\nexport default module.exports;\n`,
+        map: null
+      };
+    }
+  };
+}
+
 export default defineConfig({
-  plugins: [react(), structuredDataPlugin(), prerenderLandingPlugin()],
+  plugins: [react(), sharedCommonJsDevPlugin(), structuredDataPlugin(), prerenderLandingPlugin()],
   server: {
     port: 5173,
     proxy: {

@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import useTheme from '../hooks/useTheme';
+import Logo from './Logo';
 
 /**
  * TopBar -- top navigation bar.
@@ -24,17 +25,22 @@ export default function TopBar({ user, isAuthenticated, balance, onBuyCredits, o
   }, [dropdownOpen]);
 
   return (
-    <header className="sticky top-0 z-40 border-b border-stone-200 bg-white/80 backdrop-blur-md dark:border-stone-700 dark:bg-stone-900/80">
-      <div className="mx-auto flex h-14 max-w-5xl items-center justify-between px-4">
+    <header className="sticky top-0 z-40 border-b border-stone-200/80 bg-white/85 backdrop-blur-md dark:border-stone-800 dark:bg-stone-950/85">
+      <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4 sm:px-6">
         {/* Logo / brand */}
-        <a href="/" className="flex items-center gap-2 text-lg font-bold text-stone-900 transition-colors hover:text-brand-600 dark:text-stone-100">
-          <svg className="h-6 w-6 text-brand-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M12 2L2 7l10 5 10-5-10-5z" />
-            <path d="M2 17l10 5 10-5" />
-            <path d="M2 12l10 5 10-5" />
-          </svg>
-          SyncScribe
-        </a>
+        <div className="flex items-center gap-10">
+          <a href="/" aria-label="SyncScribe home" className="transition-opacity hover:opacity-80">
+            <Logo />
+          </a>
+          {!isAuthenticated && (
+            <nav aria-label="Main" className="hidden items-center gap-7 text-sm font-medium text-stone-600 md:flex dark:text-stone-400">
+              <a href="/#how-it-works" className="transition-colors hover:text-stone-900 dark:hover:text-stone-100">How it works</a>
+              <a href="/#features" className="transition-colors hover:text-stone-900 dark:hover:text-stone-100">Features</a>
+              <a href="/#pricing" className="transition-colors hover:text-stone-900 dark:hover:text-stone-100">Pricing</a>
+              <a href="/#faq" className="transition-colors hover:text-stone-900 dark:hover:text-stone-100">FAQ</a>
+            </nav>
+          )}
+        </div>
 
         {/* Right side controls */}
         <div className="flex items-center gap-3">
@@ -73,11 +79,8 @@ export default function TopBar({ user, isAuthenticated, balance, onBuyCredits, o
             <>
               {/* Credit balance */}
               {balance !== null && (
-                <div className="hidden sm:flex items-center gap-1.5 rounded-full bg-brand-50 px-3 py-1 text-sm font-medium text-brand-700 dark:bg-brand-950 dark:text-brand-300">
-                  <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <circle cx="12" cy="12" r="10" />
-                    <polyline points="12 6 12 12 16 14" />
-                  </svg>
+                <div className="hidden sm:flex items-center gap-1.5 rounded-full border border-stone-200 bg-white px-3 py-1 text-sm font-medium tabular-nums text-stone-700 dark:border-stone-700 dark:bg-stone-900 dark:text-stone-300">
+                  <span className="h-1.5 w-1.5 rounded-full bg-brand-500" aria-hidden="true" />
                   {balance} min
                 </div>
               )}
@@ -87,7 +90,7 @@ export default function TopBar({ user, isAuthenticated, balance, onBuyCredits, o
                 onClick={onBuyCredits}
                 className="btn-secondary !py-1.5 !px-3 text-xs"
               >
-                Buy Credits
+                Buy credits
               </button>
 
               {/* User dropdown */}
@@ -151,12 +154,14 @@ export default function TopBar({ user, isAuthenticated, balance, onBuyCredits, o
               </div>
             </>
           ) : (
-            <button
-              onClick={onSignIn}
-              className="btn-primary !py-1.5 !px-4 text-sm"
-            >
-              Sign In
-            </button>
+            <>
+              <button onClick={onSignIn} className="btn-ghost hidden !px-3 sm:inline-flex">
+                Sign in
+              </button>
+              <button onClick={onSignIn} className="btn-primary !py-2 !px-4">
+                Start free
+              </button>
+            </>
           )}
         </div>
       </div>

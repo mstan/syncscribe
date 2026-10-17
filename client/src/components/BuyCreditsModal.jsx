@@ -139,8 +139,8 @@ export default function BuyCreditsModal({ onClose }) {
 
         {/* Header */}
         <div className="mb-8 text-center">
-          <h2 className="mb-2 text-xl font-bold text-stone-900 dark:text-stone-100">
-            Buy Credits
+          <h2 className="mb-2 text-xl font-semibold text-stone-900 dark:text-stone-100">
+            Buy credits
           </h2>
           <p className="text-sm text-stone-500 dark:text-stone-400">
             Credits are based on minutes of audio processed. Choose a pack below.
@@ -188,7 +188,7 @@ export default function BuyCreditsModal({ onClose }) {
                   {isBestValue && (
                     <div className="absolute -top-3 left-1/2 -translate-x-1/2">
                       <span className="rounded-full bg-brand-600 px-3 py-1 text-xs font-semibold text-white shadow-sm">
-                        Best Value
+                        Best value
                       </span>
                     </div>
                   )}

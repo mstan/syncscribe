@@ -887,12 +887,11 @@ export default function UploadDropzone({ isAuthenticated, onAuthRequired, onAudi
     <div className="flex flex-col items-center">
       {/* Hero text */}
       <div className="mb-8 text-center">
-        <h1 className="mb-3 text-3xl font-bold tracking-tight text-stone-900 sm:text-4xl dark:text-stone-100">
-          AI Subtitle Generator
+        <h1 className="mb-3 text-3xl font-semibold tracking-tight text-stone-900 sm:text-4xl dark:text-stone-50">
+          New subtitles
         </h1>
         <p className="mx-auto max-w-md text-base text-stone-500 dark:text-stone-400">
-          Generate accurate subtitles for your media in minutes.
-          Upload a video, get SRT and VTT files back.
+          Drop in a video or audio file. You&rsquo;ll pick languages and see the cost before anything is charged.
         </p>
       </div>
 

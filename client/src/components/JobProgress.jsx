@@ -38,7 +38,7 @@ function stageConfig(stage) {
     case 'transcribing':
       return { label: 'Transcribing audio...', description: 'Converting speech to text. This is usually the longest step.' };
     case 'correcting':
-      return { label: 'Refining names & terms...', description: 'Applying series context to fix character and place names.' };
+      return { label: 'Checking names...', description: 'Identifying the show or film and fixing misheard character and place names.' };
     case 'translating':
       return {
         label: `Translating to ${getLangName(arg) || arg}...`,
@@ -122,8 +122,8 @@ export default function JobProgress({ job, error, thumbnailUrl, onRetry }) {
             className="mx-auto mb-4 h-44 w-auto rounded-xl border border-stone-200 shadow-lg dark:border-stone-700"
           />
         )}
-        <h1 className="mb-2 text-2xl font-bold text-stone-900 dark:text-stone-100">
-          {isFailed ? 'Something Went Wrong' : 'Processing Your Video'}
+        <h1 className="mb-2 text-2xl font-semibold text-stone-900 dark:text-stone-100">
+          {isFailed ? 'Something went wrong' : 'Processing your video'}
         </h1>
       </div>
 

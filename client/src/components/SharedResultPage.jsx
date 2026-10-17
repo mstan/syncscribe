@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import useTheme from '../hooks/useTheme';
 import api from '../api';
 import ResultPanel from './ResultPanel';
+import Logo from './Logo';
 
 export default function SharedResultPage() {
   const { jobId } = useParams();
@@ -39,15 +40,10 @@ export default function SharedResultPage() {
   return (
     <div className="flex min-h-screen flex-col">
       {/* Minimal header */}
-      <header className="sticky top-0 z-40 border-b border-stone-200 bg-white/80 backdrop-blur-md dark:border-stone-700 dark:bg-stone-900/80">
-        <div className="mx-auto flex h-14 max-w-5xl items-center justify-between px-4">
-          <a href="/" className="flex items-center gap-2 text-lg font-bold text-stone-900 transition-colors hover:text-brand-600 dark:text-stone-100">
-            <svg className="h-6 w-6 text-brand-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M12 2L2 7l10 5 10-5-10-5z" />
-              <path d="M2 17l10 5 10-5" />
-              <path d="M2 12l10 5 10-5" />
-            </svg>
-            SyncScribe
+      <header className="sticky top-0 z-40 border-b border-stone-200/80 bg-white/85 backdrop-blur-md dark:border-stone-800 dark:bg-stone-950/85">
+        <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4 sm:px-6">
+          <a href="/" aria-label="SyncScribe home" className="transition-opacity hover:opacity-80">
+            <Logo />
           </a>
           <button
             onClick={toggle}
@@ -85,7 +81,7 @@ export default function SharedResultPage() {
         <div className="mx-auto w-full max-w-3xl px-4 py-8">
           {loading && (
             <div className="flex flex-col items-center py-20">
-              <svg className="h-8 w-8 animate-spin text-brand-600" viewBox="0 0 24 24" fill="none">
+              <svg className="h-8 w-8 animate-spin text-stone-400" viewBox="0 0 24 24" fill="none">
                 <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                 <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
               </svg>
@@ -101,7 +97,7 @@ export default function SharedResultPage() {
                   <polyline points="12 6 12 12 16 14" />
                 </svg>
               </div>
-              <h1 className="mb-2 text-2xl font-bold text-stone-900 dark:text-stone-100">Link Expired</h1>
+              <h1 className="mb-2 text-2xl font-semibold text-stone-900 dark:text-stone-100">Link Expired</h1>
               <p className="mb-6 max-w-md text-center text-sm text-stone-500 dark:text-stone-400">{error.message}</p>
               <a href="/" className="btn-primary">Go to SyncScribe</a>
             </div>
@@ -116,7 +112,7 @@ export default function SharedResultPage() {
                   <line x1="12" y1="16" x2="12.01" y2="16" />
                 </svg>
               </div>
-              <h1 className="mb-2 text-2xl font-bold text-stone-900 dark:text-stone-100">Not Found</h1>
+              <h1 className="mb-2 text-2xl font-semibold text-stone-900 dark:text-stone-100">Not Found</h1>
               <p className="mb-6 max-w-md text-center text-sm text-stone-500 dark:text-stone-400">{error.message}</p>
               <a href="/" className="btn-primary">Go to SyncScribe</a>
             </div>

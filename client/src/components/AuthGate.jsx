@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { GoogleLogin } from '@react-oauth/google';
+import { LogoMark } from './Logo';
 
 /**
  * AuthGate -- modal overlay shown when an unauthenticated user tries to upload.
@@ -50,15 +51,11 @@ export default function AuthGate({ onSuccess, onClose, login }) {
         {/* Content */}
         <div className="flex flex-col items-center text-center">
           {/* Icon */}
-          <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-brand-100 dark:bg-brand-950">
-            <svg className="h-7 w-7 text-brand-600 dark:text-brand-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4" />
-              <polyline points="10 17 15 12 10 7" />
-              <line x1="15" y1="12" x2="3" y2="12" />
-            </svg>
+          <div className="mb-5">
+            <LogoMark className="h-11 w-11" />
           </div>
 
-          <h2 className="mb-2 text-xl font-bold text-stone-900 dark:text-stone-100">
+          <h2 className="mb-2 text-xl font-semibold text-stone-900 dark:text-stone-100">
             Sign in to generate subtitles
           </h2>
           <p className="mb-6 text-sm text-stone-500 dark:text-stone-400">

@@ -1,45 +1,60 @@
+@import '@fontsource-variable/inter';
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
+  html {
+    scroll-behavior: smooth;
+    font-feature-settings: 'cv11', 'ss01';
+  }
+
   body {
     @apply bg-stone-50 font-sans text-stone-900 antialiased
            dark:bg-stone-950 dark:text-stone-100;
-    background-image:
-      radial-gradient(at 20% 0%, rgba(245, 158, 11, 0.04) 0%, transparent 50%),
-      radial-gradient(at 80% 100%, rgba(245, 158, 11, 0.03) 0%, transparent 50%);
     min-height: 100vh;
-  }
-
-  .dark body {
-    background-image:
-      radial-gradient(at 20% 0%, rgba(245, 158, 11, 0.08) 0%, transparent 50%),
-      radial-gradient(at 80% 100%, rgba(245, 158, 11, 0.06) 0%, transparent 50%);
   }
 
   ::selection {
     @apply bg-brand-200 text-brand-900 dark:bg-brand-800 dark:text-brand-100;
   }
+
+  /* Anchor targets clear the sticky header */
+  [id] {
+    scroll-margin-top: 5rem;
+  }
 }
 
 @layer components {
+  /* Primary action: near-black ink, inverted in dark mode. Amber is reserved
+     for accents so the main action reads as the most important thing. */
   .btn-primary {
-    @apply inline-flex items-center justify-center gap-2 rounded-lg bg-brand-600 px-5 py-2.5
+    @apply inline-flex items-center justify-center gap-2 rounded-lg bg-stone-900 px-5 py-2.5
            text-sm font-semibold text-white shadow-sm transition-all duration-150
-           hover:bg-brand-700 hover:shadow-md
-           focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-600
-           disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-brand-600 disabled:hover:shadow-sm;
+           hover:bg-stone-700
+           focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-500
+           disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-stone-900
+           dark:bg-white dark:text-stone-900 dark:hover:bg-stone-200 dark:disabled:hover:bg-white;
+  }
+
+  /* Accent action for the one or two places that should glow (hero CTA). */
+  .btn-accent {
+    @apply inline-flex items-center justify-center gap-2 rounded-lg bg-brand-500 px-5 py-2.5
+           text-sm font-semibold text-stone-950 shadow-sm transition-all duration-150
+           hover:bg-brand-400
+           focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-500
+           disabled:cursor-not-allowed disabled:opacity-50;
   }
 
   .btn-secondary {
-    @apply inline-flex items-center justify-center gap-2 rounded-lg border border-stone-300 bg-white px-5 py-2.5
-           text-sm font-semibold text-stone-700 shadow-sm transition-all duration-150
-           hover:bg-stone-50 hover:shadow-md
+    @apply inline-flex items-center justify-center gap-2 rounded-lg border border-stone-200 bg-white px-5 py-2.5
+           text-sm font-semibold text-stone-800 shadow-card transition-all duration-150
+           hover:border-stone-300 hover:bg-stone-50
            focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-stone-400
            disabled:cursor-not-allowed disabled:opacity-50
-           dark:border-stone-700 dark:bg-stone-800 dark:text-stone-200
-           dark:hover:bg-stone-700;
+           dark:border-stone-700 dark:bg-stone-900 dark:text-stone-200
+           dark:hover:border-stone-600 dark:hover:bg-stone-800;
   }
 
   .btn-ghost {
@@ -47,6 +62,25 @@
            text-sm font-medium text-stone-600 transition-colors duration-150
            hover:bg-stone-100 hover:text-stone-900
            dark:text-stone-300 dark:hover:bg-stone-800 dark:hover:text-stone-100;
+  }
+
+  /* Surfaces */
+  .card {
+    @apply rounded-2xl border border-stone-200/80 bg-white shadow-card
+           dark:border-stone-800 dark:bg-stone-900;
+  }
+
+  /* Small uppercase label above section titles */
+  .eyebrow {
+    @apply text-xs font-semibold uppercase tracking-[0.14em] text-brand-700 dark:text-brand-400;
+  }
+
+  .section-title {
+    @apply text-3xl font-semibold tracking-tight text-stone-900 sm:text-4xl dark:text-stone-50;
+  }
+
+  .section-lede {
+    @apply mt-4 text-base leading-relaxed text-stone-600 sm:text-lg dark:text-stone-400;
   }
 }
 

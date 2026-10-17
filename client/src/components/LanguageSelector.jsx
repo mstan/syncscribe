@@ -293,8 +293,8 @@ export default function LanguageSelector({ fileName, detectedLanguage, thumbnail
               className="mx-auto mb-4 h-44 w-auto rounded-xl border border-stone-200 shadow-lg dark:border-stone-700"
             />
           )}
-          <h1 className="mb-1 text-2xl font-bold text-stone-900 dark:text-stone-100">
-            Language Settings
+          <h1 className="mb-1 text-2xl font-semibold text-stone-900 dark:text-stone-100">
+            Language settings
           </h1>
           <p className="text-sm text-stone-500 dark:text-stone-400">
             <span className="font-medium text-stone-700 dark:text-stone-300">{fileName}</span>
